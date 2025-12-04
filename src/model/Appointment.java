@@ -140,6 +140,21 @@ public class Appointment {
         this.lastModified = lastModified;
     }
 
+    //public String toCSV() {
+        //return appointmentId + "," + patientId + "," + clinicianID + "," + facilityId + "," +
+        //appointmentDate + "," + appointmentTime + "," + durationMinutes + "," + appointmentType + "," +
+                //status + "," + reason_For_Visit + "," + notes + "," + createdDate + "," + lastModified;
+    //}
+
+    //public static Appointment fromCSV(String csvLine){
+        //try{
+            //String[] parts = csvLine.split(",");
+            //return new Appointment(parts[0], parts[1], parts[2], parts[3], LocalDate.parse(parts[4]),
+                    //parts[5], parts[6], parts[7], parts[8], parts[9], parts[10],
+                    //LocalDate.parse(parts[11]), LocalDate.parse(parts[12]));
+        //}
+    //}
+
     @Override
     public String toString() {
         return "**** Appointment as follows: ****\n\n"
