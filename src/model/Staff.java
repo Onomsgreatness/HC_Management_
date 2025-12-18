@@ -1,20 +1,22 @@
 package model;
 
-import java.time.LocalDate;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class Staff extends Worker {
     private String staffId;
     private String role;
     private String department;
-    private Facility facilityID;
+    private String facilityID;
     private String lineManager;
     private String accessLevel;
 
-    public Staff(String firstName, String lastName, String email, String contact,
-                 LocalDate DoB, String employmentStatus, LocalDate startDate, String staffId,
-                 String role, String department, Facility facilityID, String lineManager,
-                 String accessLevel){
-        super(firstName, lastName, email, contact, DoB, employmentStatus, startDate);
+    public Staff(String staffId,String firstName, String lastName,
+                 String role, String department, String facilityID,
+                 String contact, String email,
+                 String employmentStatus, Date startDate, String lineManager, String accessLevel)
+    {
+        super(firstName, lastName, email, contact, employmentStatus, startDate);
         this.staffId = staffId;
         this.role = role;
         this.department = department;
@@ -47,7 +49,7 @@ public class Staff extends Worker {
         this.department = department;
     }
 
-    public Facility getFacilityID() {
+    public  getFacilityID() {
         return facilityID;
     }
 

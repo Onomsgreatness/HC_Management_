@@ -1,43 +1,44 @@
 package model;
 
-import model.Appointment;
-import model.Patient;
-import java.time.LocalDate;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 
 public class  Referral {
     private String referralId;
-    private Patient patientId;
+    private String patientId;
     private String referringClinicianId;
     private String referredToClinicianId;
     private String referringFacilityId;
-    private LocalDate referralDate;
+    private String referringToFacilityId;
+    private Date referralDate;
     private String urgencyLevel;
     private String referralReason;
     private String clinicalSummary;
-    private ReferralStatus status;
     private String requestedInvestigation;
-    private Appointment appointmentId;
+    private ReferralStatus status;
+    private String appointmentId;
     private String notes;
-    private LocalDate createdDate;
-    private LocalDate lastUpdated;
+    private Date createdDate;
+    private Date lastUpdated;
 
-    public Referral(String referralId, Patient patientId, String referringClinicianId,
-                    String referredToClinicianId, String referringFacilityId, LocalDate referralDate,
+    public Referral(String referralId, String patientId, String referringClinicianId,
+                    String referredToClinicianId, String referringFacilityId, String referringToFacilityId, Date referralDate,
                     String urgencyLevel, String referralReason, String clinicalSummary,
-                    ReferralStatus status, String requestedInvestigation, Appointment appointmentId,
-                    String notes, LocalDate createdDate, LocalDate lastUpdated) {
+                    String requestedInvestigation, ReferralStatus status, String appointmentId,
+                    String notes, Date createdDate, Date lastUpdated) {
         this.referralId = referralId;
         this.patientId = patientId;
         this.referringClinicianId = referringClinicianId;
         this.referredToClinicianId = referredToClinicianId;
         this.referringFacilityId = referringFacilityId;
+        this.referringToFacilityId = referringToFacilityId;
         this.referralDate = referralDate;
         this.urgencyLevel = urgencyLevel;
         this.referralReason = referralReason;
         this.clinicalSummary = clinicalSummary;
-        this.status = status;
         this.requestedInvestigation = requestedInvestigation;
+        this.status = status;
         this.appointmentId = appointmentId;
         this.notes = notes;
         this.createdDate = createdDate;
@@ -52,11 +53,11 @@ public class  Referral {
         this.referralId = referralId;
     }
 
-    public Patient getPatientId() {
+    public String getPatientId() {
         return patientId;
     }
 
-    public void setPatientId(Patient patientId) {
+    public void setPatientId(String patientId) {
         this.patientId = patientId;
     }
 
@@ -84,11 +85,19 @@ public class  Referral {
         this.referringFacilityId = referringFacilityId;
     }
 
-    public LocalDate getReferralDate() {
+    public String getReferringToFacilityId() {
+        return referringToFacilityId;
+    }
+
+    public void setReferringToFacilityId(String referringToFacilityId) {
+        this.referringToFacilityId = referringToFacilityId;
+    }
+
+    public Date getReferralDate() {
         return referralDate;
     }
 
-    public void setReferralDate(LocalDate referralDate) {
+    public void setReferralDate(Date referralDate) {
         this.referralDate = referralDate;
     }
 
@@ -132,11 +141,11 @@ public class  Referral {
         this.requestedInvestigation = requestedInvestigation;
     }
 
-    public Appointment getAppointmentId() {
+    public String getAppointmentId() {
         return appointmentId;
     }
 
-    public void setAppointmentId(Appointment appointmentId) {
+    public void setAppointmentId(String appointmentId) {
         this.appointmentId = appointmentId;
     }
 
@@ -148,31 +157,58 @@ public class  Referral {
         this.notes = notes;
     }
 
-    public LocalDate getCreatedDate() {
+    public Date getCreatedDate() {
         return createdDate;
     }
 
-    public void setCreatedDate(LocalDate createdDate) {
+    public void setCreatedDate(Date createdDate) {
         this.createdDate = createdDate;
     }
 
-    public LocalDate getLastUpdated() {
+    public Date getLastUpdated() {
         return lastUpdated;
     }
 
-    public void setLastUpdated(LocalDate lastUpdated) {
+    public void setLastUpdated(Date lastUpdated) {
         this.lastUpdated = lastUpdated;
+    }
+
+    public String toCSV() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        return referralId + "," + patientId + "," + referringClinicianId + "," + referredToClinicianId
+                + "," + referringFacilityId + "," + referringToFacilityId + "," + sdf.format(referralDate) + "," + urgencyLevel + ","
+                + referralReason + "," + clinicalSummary + "," + requestedInvestigation
+                + "," + status + "," + appointmentId + "," + notes + "," + sdf.format(createdDate)
+                + "," + sdf.format(lastUpdated);
+    }
+
+    public static Referral fromCSV(String csvLine) {
+        try{
+            String[] parts = csvLine.split(",");
+            ReferralStatus status = ReferralStatus.valueOf(parts[11].trim());
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+            return new Referral(
+                    parts[0], parts[1], parts[2], parts[3], parts[4], parts[5], sdf.parse(parts[6]), parts[7],
+                    parts[8], parts[9], parts[10], status, parts[12], parts[13], sdf.parse(parts[14]), sdf.parse(parts[15])
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Override
     public String toString() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         return "Referral{" +
                 "referralId='" + referralId + "\n"+
                 ", patientId=" + patientId +
                 ", referringClinicianId='" + referringClinicianId + "\n"+
                 ", referredToClinicianId='" + referredToClinicianId + "\n" +
                 ", referringFacilityId='" + referringFacilityId + "\n" +
-                ", referralDate=" + referralDate +
+                ", referringToFacilityId='" + referringToFacilityId + "\n" +
+                ", referralDate=" + sdf.format(referralDate) +
                 ", urgencyLevel='" + urgencyLevel + "\n" +
                 ", referralReason='" + referralReason + "\n" +
                 ", clinicalSummary='" + clinicalSummary + "\n" +
@@ -180,8 +216,8 @@ public class  Referral {
                 ", requestedInvestigation='" + requestedInvestigation + "\n" +
                 ", appointmentId=" + appointmentId +
                 ", notes='" + notes + "\n" +
-                ", createdDate=" + createdDate +
-                ", lastUpdated=" + lastUpdated +
+                ", createdDate=" + sdf.format(createdDate) +
+                ", lastUpdated=" + sdf.format(lastUpdated) +
                 '}';
     }
 }

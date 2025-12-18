@@ -1,12 +1,14 @@
 package model;
 
+import java.text.SimpleDateFormat;
+
 public class Facility {
     private String facilityId;
     private String facilityName;
     private String facilityType;
     private String address;
     private String postCode;
-    private int contact;
+    private String contact;
     private String email;
     private String openingHours;
     private String managerName;
@@ -14,7 +16,7 @@ public class Facility {
     private String specialitiesOffered;
 
     public Facility(String facilityId, String facilityName, String facilityType, String address,
-                    String postCode, int contact, String email, String openingHours, String managerName,
+                    String postCode, String contact, String email, String openingHours, String managerName,
                     int capacity, String specialitiesOffered)
     {
         this.facilityId = facilityId;
@@ -71,11 +73,11 @@ public class Facility {
         this.postCode = postCode;
     }
 
-    public int getContact() {
+    public String getContact() {
         return contact;
     }
 
-    public void setContact(int contact) {
+    public void setContact(String contact) {
         this.contact = contact;
     }
 
@@ -119,8 +121,20 @@ public class Facility {
         this.specialitiesOffered = specialitiesOffered;
     }
 
+    public String toCSV() {
+        return facilityId + "," + facilityName + "," + facilityType + "," + address + "," + postCode + ","
+                + contact + "," + email + "," + openingHours + "," + managerName + "," + capacity + "," + specialitiesOffered;
+    }
+
+    public static Facility fromCSV(String csvLine) {
+        String[] parts = csvLine.split(",");
+        return new Facility(parts[0], parts[2], parts[3], parts[4], parts[5], parts[6], parts[7],
+                parts[8], parts[9], Integer.parseInt(parts[10]), parts[11]);
+
+    }
     @Override
     public String toString() {
+
         return "Facilities{" +
                 "facilityId='" + facilityId + "\n" +
                 ", facilityName='" + facilityName + "\n"+

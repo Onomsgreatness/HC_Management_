@@ -1,20 +1,20 @@
 package model;
 
-import java.time.LocalDate;
+import java.util.Date;
+import java.text.SimpleDateFormat;
 
 public abstract class Person {
     private String firstName;
     private String lastName;
     private String email;
     private  String contact;
-    private LocalDate DoB;
 
-    public Person(String firstName, String lastName, String email, String contact, LocalDate DoB){
+
+    public Person(String firstName, String lastName, String email, String contact){
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.contact = contact;
-        this.DoB = DoB;
     };
 
     public String getFirstName() {
@@ -49,18 +49,11 @@ public abstract class Person {
         this.contact = contact;
     }
 
-    public LocalDate getDoB() {
-        return DoB;
-    }
 
-    public void setDoB(LocalDate doB) {
-        DoB = doB;
-    }
 
     @Override
     public String toString(){
         return  "First Name: " + firstName + " Last Name: " + lastName + "\n"
-                + "Email: " + email + " Contact: " + contact + "\n"
-                + "Date of Birth: " + DoB;
+                + "Email: " + email + " Contact: " + contact;
     }
 }

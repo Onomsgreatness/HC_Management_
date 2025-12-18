@@ -1,14 +1,15 @@
 package model;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
-import java.time.LocalDate;
 
 public class Prescription {
     private String prescriptionId;
-    private Patient patientId;
-    private Clinician clinicianId;
-    private Appointment appointmentId;
-    private LocalDate prescriptionDate;
+    private String patientId;
+    private String clinicianId;
+    private String appointmentId;
+    private Date prescriptionDate;
     private String medicationName;
     private String dosage;
     private String frequency;
@@ -17,13 +18,13 @@ public class Prescription {
     private String instruction;
     private String pharmacyName;
     private StatusType status;
-    private LocalDate issueDate;
-    private LocalDate collectionDate;
+    private Date issueDate;
+    private Date collectionDate;
 
-    public Prescription(String prescriptionId, Patient patientId, Clinician clinicianId, Appointment appointmentId,
-                        LocalDate prescriptionDate, String medicationName, String dosage, String frequency,
+    public Prescription(String prescriptionId, String patientId, String clinicianId, String appointmentId,
+                        Date prescriptionDate, String medicationName, String dosage, String frequency,
                         int durationDays, String quantity, String instruction, String pharmacyName, StatusType status,
-                        LocalDate issueDate, LocalDate collectionDate) {
+                        Date issueDate, Date collectionDate) {
         this.prescriptionId = prescriptionId;
         this.patientId = patientId;
         this.clinicianId = clinicianId;
@@ -49,35 +50,35 @@ public class Prescription {
         this.prescriptionId = prescriptionId;
     }
 
-    public Patient getPatientId() {
+    public String getPatientId() {
         return patientId;
     }
 
-    public void setPatientId(Patient patientId) {
+    public void setPatientId(String patientId) {
         this.patientId = patientId;
     }
 
-    public Clinician getClinicianId() {
+    public String getClinicianId() {
         return clinicianId;
     }
 
-    public void setClinicianId(Clinician clinicianId) {
+    public void setClinicianId(String clinicianId) {
         this.clinicianId = clinicianId;
     }
 
-    public Appointment getAppointmentId() {
+    public String getAppointmentId() {
         return appointmentId;
     }
 
-    public void setAppointmentId(Appointment appointmentId) {
+    public void setAppointmentId(String appointmentId) {
         this.appointmentId = appointmentId;
     }
 
-    public LocalDate getPrescriptionDate() {
+    public Date getPrescriptionDate() {
         return prescriptionDate;
     }
 
-    public void setPrescriptionDate(LocalDate prescriptionDate) {
+    public void setPrescriptionDate(Date prescriptionDate) {
         this.prescriptionDate = prescriptionDate;
     }
 
@@ -145,30 +146,53 @@ public class Prescription {
         this.status = status;
     }
 
-    public LocalDate getIssueDate() {
+    public Date getIssueDate() {
         return issueDate;
     }
 
-    public void setIssueDate(LocalDate issueDate) {
+    public void setIssueDate(Date issueDate) {
         this.issueDate = issueDate;
     }
 
-    public LocalDate getCollectionDate() {
+    public Date getCollectionDate() {
         return collectionDate;
     }
 
-    public void setCollectionDate(LocalDate collectionDate) {
+    public void setCollectionDate(Date collectionDate) {
         this.collectionDate = collectionDate;
+    }
+
+    public String toCSV(){
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        return prescriptionId + "," + patientId + "," + clinicianId + "," + appointmentId + ","
+                + sdf.format(prescriptionDate) + "," + medicationName + "," + dosage + "," + frequency
+                + "," + durationDays + "," + quantity + "," + instruction + "," + pharmacyName + ","
+                + status.name() + "," + sdf.format(issueDate) + "," + sdf.format(collectionDate);
+    }
+
+    public static Prescription fromCSV(String csvLine){
+        try{
+            String[] parts = csvLine.split(",");
+            StatusType status = StatusType.valueOf(parts[12].trim());
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+            return new Prescription(parts[0], parts[1], parts[2], parts[3], sdf.parse(parts[4]), parts[5],
+                    parts[6], parts[7], Integer.parseInt(parts[8]), parts[9], parts[10], parts[11], status,
+                    sdf.parse(parts[13]), sdf.parse(parts[14]));
+        } catch(Exception e){
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Override
     public String toString() {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
         return "Prescription{" +
                 "prescriptionId='" + prescriptionId + "\n" +
                 ", patientId=" + patientId +
                 ", clinicianId=" + clinicianId +
                 ", appointmentId=" + appointmentId +
-                ", prescriptionDate=" + prescriptionDate +
+                ", prescriptionDate=" + sdf.format(prescriptionDate) +
                 ", medicationName='" + medicationName + "\n"+
                 ", dosage='" + dosage + "\n" +
                 ", frequency='" + frequency + "\n" +
@@ -177,8 +201,8 @@ public class Prescription {
                 ", instruction='" + instruction + "\n" +
                 ", pharmacyName='" + pharmacyName + "\n" +
                 ", status=" + status + "\n" +
-                ", issueDate=" + issueDate +
-                ", collectionDate=" + collectionDate +
+                ", issueDate=" + sdf.format(issueDate) +
+                ", collectionDate=" + sdf.format(collectionDate) +
                 '}';
     }
 }

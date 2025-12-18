@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/HC_Management_.iml" filepath="$PROJECT_DIR$/HC_Management_.iml" />
-      <module fileurl="file://$PROJECT_DIR$/unitTesting/unitTesting.iml" filepath="$PROJECT_DIR$/unitTesting/unitTesting.iml" />
     </modules>
   </component>
 </project>
