@@ -12,7 +12,7 @@ public class GP extends Clinician {
     }
 
     @Override
-    public String getClinicianId() {
+    public String toString() {
         return super.toString();
     }
 }

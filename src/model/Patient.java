@@ -1,23 +1,26 @@
 package model;
 
-import java.time.LocalDate;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class Patient extends Person{
     private String patientId;
-    private int nhsNumber;
+    private Date DoB;
+    private String nhsNumber;
     private String gender;
     private String address;
     private String postCode;
     private String emergencyContactName;
-    private int emergencyContact;
-    private LocalDate registrationDate;
-    private GP gpSurgery;
+    private String emergencyContact;
+    private Date registrationDate;
+    private String gpSurgeryId;
 
-    public Patient(String firstName, String lastName, String email, String contact, LocalDate DoB, String patientId,
-                   int nhsNumber, String gender, String address, String postCode,
-                   String emergencyContactName, int emergencyContact, LocalDate registrationDate, GP gpSurgery){
-        super(firstName, lastName, email, contact, DoB);
+    public Patient(String patientId, String firstName, String lastName, Date doB, String nhsNumber, String gender,
+                   String contact, String email, String address, String postCode,
+                   String emergencyContactName, String emergencyContact, Date registrationDate, String gpSurgeryId) {
+        super(firstName, lastName, email, contact);
         this.patientId = patientId;
+        DoB = doB;
         this.nhsNumber = nhsNumber;
         this.gender = gender;
         this.address = address;
@@ -25,9 +28,8 @@ public class Patient extends Person{
         this.emergencyContactName = emergencyContactName;
         this.emergencyContact = emergencyContact;
         this.registrationDate = registrationDate;
-        this.gpSurgery = gpSurgery;
-
-    };
+        this.gpSurgeryId = gpSurgeryId;
+    }
 
     public String getPatientId(){
         return patientId;
@@ -37,11 +39,11 @@ public class Patient extends Person{
         this.patientId = id;
     }
 
-    public int getNhsNumber() {
+    public String getNhsNumber() {
         return nhsNumber;
     }
 
-    public void setNhsNumber(int nhsNumber) {
+    public void setNhsNumber(String nhsNumber) {
         this.nhsNumber = nhsNumber;
     }
 
@@ -77,41 +79,71 @@ public class Patient extends Person{
         this.emergencyContactName = emergencyContactName;
     }
 
-    public int getEmergencyContact() {
+    public String getEmergencyContact() {
         return emergencyContact;
     }
 
-    public void setEmergencyContact(int emergencyContact) {
+    public void setEmergencyContact(String emergencyContact) {
         this.emergencyContact = emergencyContact;
     }
 
-    public LocalDate getRegistrationDate() {
+    public Date getRegistrationDate() {
         return registrationDate;
     }
 
-    public void setRegistrationDate(LocalDate registrationDate) {
+    public void setRegistrationDate(Date registrationDate) {
         this.registrationDate = registrationDate;
     }
 
-    public GP getGpSurgery() {
-        return gpSurgery;
+    public String getGpSurgeryId() {
+        return gpSurgeryId;
     }
 
-    public void setGpSurgery(GP gpSurgery) {
-        this.gpSurgery = gpSurgery;
+    public void setGpSurgeryId(String gpSurgeryId) {
+        this.gpSurgeryId = gpSurgeryId;
+    }
+
+    public String toCSV() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        return patientId + "," + getFirstName() + "," + getLastName() + "," + sdf.format(DoB) + "," + nhsNumber
+                + "," + gender + "," + getContact() + ","  + getEmail() + "," + address + ","
+                + postCode + "," + emergencyContactName + "," + emergencyContact + ","
+                + sdf.format(registrationDate) + "," + gpSurgeryId;
+    }
+
+    public static Patient fromCSV(String csvLine) {
+        try{
+            String[] parts = csvLine.split(",");
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            Date date = sdf.parse(parts[3]);
+            Date date1 = sdf.parse(parts[12]);
+            return new Patient(
+                    parts[0], parts[1], parts[2], date,
+                    parts[4], parts[5], parts[6], parts[7],
+                    parts[8], parts[9], parts[10], parts[11],
+                    date1, parts[13]
+            );
+        } catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }
+
+
     }
 
     @Override
     public String toString() {
-        return super.toString() + "Patient {"
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        return  "Patient {"
                 + "Patient Id: " + patientId + "\n"
+                + super.toString() + "\n"
                 + "NHS Number: " + nhsNumber + "\n"
                 + "Gender: " + gender + "\n"
                 + "Address: " + address + "\n"
                 + "Post Code: " + postCode + "\n"
                 + "Emergency Contact Name : Emergency Number: " + emergencyContactName + " : " + emergencyContact + "\n"
-                + "Registration Date: " + registrationDate + "\n"
-                + "GP_Surgery Id: " + gpSurgery + "}";
+                + "Registration Date: " + sdf.format(registrationDate) + "\n"
+                + "GP_Surgery Id: " + gpSurgeryId + "}";
 
     }
 }

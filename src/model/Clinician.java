@@ -1,8 +1,10 @@
 package model;
 
-import java.time.LocalDate;
+import java.util.Date;
+import java.text.SimpleDateFormat;
 
-public abstract class Clinician extends Worker {
+
+public class Clinician extends Worker {
     private String clinicianId;
     private String title;
     private String speciality;
@@ -10,10 +12,10 @@ public abstract class Clinician extends Worker {
     private String workplaceId;
     private String workplaceType;
 
-    public Clinician(String clinicianId, String title, String speciality, int gmcNumber, String workplaceId,
-                     String workplaceType, String firstName, String lastName, String email, String contact,
-                     LocalDate DoB, String employmentStatus, LocalDate startDate){
-        super(firstName, lastName, email, contact, DoB, employmentStatus, startDate);
+    public Clinician(String clinicianId, String firstName, String lastName, String title, String speciality,
+                     int gmcNumber, String contact,String email,String workplaceId,
+                     String workplaceType, String employmentStatus, Date startDate){
+        super(firstName, lastName, email, contact, employmentStatus, startDate);
         this.clinicianId = clinicianId;
         this.title = title;
         this.speciality = speciality;
