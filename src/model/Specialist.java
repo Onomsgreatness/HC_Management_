@@ -1,14 +1,16 @@
 package model;
 
-import java.time.LocalDate;
+import java.util.Date;
+import java.text.SimpleDateFormat;
 
 public class Specialist extends Clinician {
 
     public Specialist (String clinicianId, String title, String speciality, int gmcNumber, String workplaceId,
                        String workplaceType, String firstName, String lastName, String email, String contact,
-                       LocalDate DoB, String employmentStatus, LocalDate startDate){
-        super(clinicianId, title, speciality, gmcNumber, workplaceId, workplaceType ,
-                firstName, lastName, email, contact, DoB, employmentStatus, startDate);
+                       String employmentStatus, Date startDate){
+        super(clinicianId, firstName, lastName, title, speciality,
+                gmcNumber, contact, email, workplaceId,
+                workplaceType, employmentStatus, startDate);
     }
 
     @Override

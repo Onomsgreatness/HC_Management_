@@ -147,7 +147,7 @@ public class Appointment {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         return appointmentId + "," + patientId + "," + clinicianID + "," + facilityId + "," +
         sdf.format(appointmentDate) + "," + appointmentTime + "," + durationMinutes + "," + status.name() + "," +
-                status + "," + reason_For_Visit + "," + notes + "," + sdf.format(createdDate) + "," + sdf.format(lastModified);
+                reason_For_Visit + "," + notes + "," + sdf.format(createdDate) + "," + sdf.format(lastModified);
     }
 
     public static Appointment fromCSV(String csvLine){

@@ -71,6 +71,25 @@ public class Clinician extends Worker {
         this.workplaceType = workplaceType;
     }
 
+    public String toCSV() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        return clinicianId + "," + getFirstName() + "," + getLastName() + "," + title + "," + speciality + "," +
+                gmcNumber + "," + getContact() + "," + getEmail() + "," + workplaceId + "," + workplaceType + "," +
+                getEmploymentStatus() + "," + sdf.format(getStartDate());
+    }
+
+    public static Clinician fromCSV(String csvLine){
+        try{
+            String[] parts = csvLine.split(",");
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            return new Clinician(parts[0], parts[1], parts[2], parts[3], parts[4], Integer.parseInt(parts[5]), parts[6], parts[7],
+                    parts[8], parts[9], parts[10], sdf.parse(parts[11]));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     @Override
     public String toString(){
         return super.toString() + "Clinicians {" + " Clinician Id: " + clinicianId + "\n"

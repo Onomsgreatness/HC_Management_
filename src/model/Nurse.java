@@ -1,15 +1,17 @@
 package model;
 
-import java.time.LocalDate;
+import java.util.Date;
+import java.text.SimpleDateFormat;
 
 public class Nurse extends Clinician {
     private String qualification;
 
     public Nurse(String clinicianId, String title, String speciality, int gmcNumber, String workplaceId,
                  String workplaceType, String firstName, String lastName, String email, String contact,
-                 LocalDate DoB, String employmentStatus, LocalDate startDate, String qualification){
-        super(clinicianId, title, speciality, gmcNumber, workplaceId, workplaceType ,
-                firstName, lastName, email, contact, DoB, employmentStatus, startDate);
+                 String employmentStatus, Date startDate, String qualification){
+        super(clinicianId, firstName, lastName, title, speciality,
+                gmcNumber, contact, email, workplaceId,
+                workplaceType, employmentStatus, startDate);
         this.qualification = qualification;
     }
 

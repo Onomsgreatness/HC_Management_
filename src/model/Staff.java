@@ -49,11 +49,11 @@ public class Staff extends Worker {
         this.department = department;
     }
 
-    public  getFacilityID() {
+    public String getFacilityID() {
         return facilityID;
     }
 
-    public void setFacilityID(Facility facilityID) {
+    public void setFacilityID(String facilityID) {
         this.facilityID = facilityID;
     }
 
@@ -71,6 +71,25 @@ public class Staff extends Worker {
 
     public void setAccessLevel(String accessLevel) {
         this.accessLevel = accessLevel;
+    }
+
+    public String toCSV(){
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        return staffId + "," + getFirstName() + "," + getLastName() + "," + role + "," + department
+                + "," + facilityID + "," + getContact() + "," + getEmail() + "," + getEmploymentStatus()
+                + "," + sdf.format(getStartDate()) + "," + lineManager + "," + accessLevel;
+    }
+
+    public static Staff fromCSV(String csvLine){
+        try {
+            String[] parts = csvLine.split(",");
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            return new Staff(parts[0], parts[1], parts[2], parts[3], parts[4], parts[5], parts[6],
+                            parts[7], parts[8], sdf.parse(parts[9]), parts[10], parts[11]);
+        } catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Override
