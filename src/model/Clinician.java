@@ -14,7 +14,7 @@ public class Clinician extends Worker {
 
     public Clinician(String clinicianId, String firstName, String lastName, String title, String speciality,
                      int gmcNumber, String contact,String email,String workplaceId,
-                     String workplaceType, String employmentStatus, Date startDate){
+                     String workplaceType, EmploymentStatus employmentStatus, Date startDate){
         super(firstName, lastName, email, contact, employmentStatus, startDate);
         this.clinicianId = clinicianId;
         this.title = title;
@@ -75,15 +75,16 @@ public class Clinician extends Worker {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         return clinicianId + "," + getFirstName() + "," + getLastName() + "," + title + "," + speciality + "," +
                 gmcNumber + "," + getContact() + "," + getEmail() + "," + workplaceId + "," + workplaceType + "," +
-                getEmploymentStatus() + "," + sdf.format(getStartDate());
+                getEmploymentStatus().getStatus() + "," + sdf.format(getStartDate());
     }
 
     public static Clinician fromCSV(String csvLine){
         try{
             String[] parts = csvLine.split(",");
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            EmploymentStatus status = EmploymentStatus.valueOf(parts[10].trim());
             return new Clinician(parts[0], parts[1], parts[2], parts[3], parts[4], Integer.parseInt(parts[5]), parts[6], parts[7],
-                    parts[8], parts[9], parts[10], sdf.parse(parts[11]));
+                    parts[8], parts[9], status , sdf.parse(parts[11]));
         } catch (Exception e) {
             e.printStackTrace();
             return null;

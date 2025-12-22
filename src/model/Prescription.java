@@ -17,13 +17,13 @@ public class Prescription {
     private String quantity;
     private String instruction;
     private String pharmacyName;
-    private StatusType status;
+    private String status;
     private Date issueDate;
     private Date collectionDate;
 
     public Prescription(String prescriptionId, String patientId, String clinicianId, String appointmentId,
                         Date prescriptionDate, String medicationName, String dosage, String frequency,
-                        int durationDays, String quantity, String instruction, String pharmacyName, StatusType status,
+                        int durationDays, String quantity, String instruction, String pharmacyName, String status,
                         Date issueDate, Date collectionDate) {
         this.prescriptionId = prescriptionId;
         this.patientId = patientId;
@@ -138,11 +138,11 @@ public class Prescription {
         this.pharmacyName = pharmacyName;
     }
 
-    public StatusType getStatus() {
+    public String getStatus() {
         return status;
     }
 
-    public void setStatus(StatusType status) {
+    public void setStatus(String status) {
         this.status = status;
     }
 
@@ -167,16 +167,15 @@ public class Prescription {
         return prescriptionId + "," + patientId + "," + clinicianId + "," + appointmentId + ","
                 + sdf.format(prescriptionDate) + "," + medicationName + "," + dosage + "," + frequency
                 + "," + durationDays + "," + quantity + "," + instruction + "," + pharmacyName + ","
-                + status.name() + "," + sdf.format(issueDate) + "," + sdf.format(collectionDate);
+                + status + "," + sdf.format(issueDate) + "," + sdf.format(collectionDate);
     }
 
     public static Prescription fromCSV(String csvLine){
         try{
             String[] parts = csvLine.split(",");
-            StatusType status = StatusType.valueOf(parts[12].trim());
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
             return new Prescription(parts[0], parts[1], parts[2], parts[3], sdf.parse(parts[4]), parts[5],
-                    parts[6], parts[7], Integer.parseInt(parts[8]), parts[9], parts[10], parts[11], status,
+                    parts[6], parts[7], Integer.parseInt(parts[8]), parts[9], parts[10], parts[11], parts[12],
                     sdf.parse(parts[13]), sdf.parse(parts[14]));
         } catch(Exception e){
             e.printStackTrace();

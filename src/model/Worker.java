@@ -4,21 +4,21 @@ import java.util.Date;
 import java.text.SimpleDateFormat;
 
 public abstract class Worker extends Person {
-    private String employmentStatus;
+    private EmploymentStatus employmentStatus;
     private Date startDate;
 
     public Worker(String firstName, String lastName, String email, String contact,
-                  String employmentStatus, Date startDate) {
+                  EmploymentStatus employmentStatus, Date startDate) {
         super(firstName, lastName, email, contact);
         this.employmentStatus = employmentStatus;
         this.startDate = startDate;
     }
 
-    public String getEmploymentStatus() {
+    public EmploymentStatus getEmploymentStatus() {
         return employmentStatus;
     }
 
-    public void setEmploymentStatus(String employmentStatus) {
+    public void setEmploymentStatus(EmploymentStatus employmentStatus) {
         this.employmentStatus = employmentStatus;
     }
 
