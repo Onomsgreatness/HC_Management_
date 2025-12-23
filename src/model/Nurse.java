@@ -8,7 +8,7 @@ public class Nurse extends Clinician {
 
     public Nurse(String clinicianId, String title, String speciality, int gmcNumber, String workplaceId,
                  String workplaceType, String firstName, String lastName, String email, String contact,
-                 String employmentStatus, Date startDate, String qualification){
+                 EmploymentStatus employmentStatus, Date startDate, String qualification){
         super(clinicianId, firstName, lastName, title, speciality,
                 gmcNumber, contact, email, workplaceId,
                 workplaceType, employmentStatus, startDate);
