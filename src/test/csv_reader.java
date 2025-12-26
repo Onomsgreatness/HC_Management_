@@ -1,5 +1,6 @@
 package test;
 
+import model.HCModel;
 import model.Patient;
 
 import java.io.BufferedReader;
@@ -27,18 +28,18 @@ public class csv_reader {
 //            e.printStackTrace();
 //        }
 
-//        try {
-//            FileReader fr = new FileReader("clinicians.csv");
-//            BufferedReader br = new BufferedReader(fr);
-//
-//            while((line = br.readLine()) != null) {
-//                System.out.println(line);
-//            }
-//        } catch (FileNotFoundException e) {
-//            e.printStackTrace();
-//        }  catch (IOException e) {
-//            e.printStackTrace();
-//        }
+        try {
+            FileReader fr = new FileReader("clinicians.csv");
+            BufferedReader br = new BufferedReader(fr);
+
+            while((line = br.readLine()) != null) {
+                System.out.println(line);
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }  catch (IOException e) {
+            e.printStackTrace();
+        }
 
         //=======Create a Patient instance===========
         try{
@@ -53,5 +54,8 @@ public class csv_reader {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        HCModel p = new HCModel();
+        System.out.println("HCModels compiles");
     }
 }

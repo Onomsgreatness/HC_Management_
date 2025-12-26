@@ -1,9 +1,9 @@
-import controller.ReferralManager;
-import model.*;
+package model;
 
-import java.text.SimpleDateFormat;
+import CSV.CSVHandler;
+import controller.ReferralManager;
+
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 
 /*References: Dr John Kanyaru*/
