@@ -86,8 +86,24 @@ public class ReferralManager {
         return null;
     }
 
-    public void clearAlReferrals() {
+    public void clearAllReferrals() {
         referrals.clear();
         nextReferralId = 1;
     }
+
+    public ArrayList<Referral> getAllReferrals() {
+        return new ArrayList<Referral>(referrals);
+    }
+
+    public ArrayList<Referral> getPendingReferrals() {
+        ArrayList<Referral> pending = new ArrayList<>();
+        for (int i = 0; i < referrals.size(); i++) {
+            if (referrals.get(i).getStatus() == ReferralStatus.PENDING) {
+                pending.add(referrals.get(i));
+            }
+        }
+        return pending;
+    }
+
+//Contents of output text file (referrals and prescription content ) [10 points]??
 }

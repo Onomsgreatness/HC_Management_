@@ -3,7 +3,7 @@ package model;
 public enum ReferralStatus {
     COMPLETED("Completed"),
     PENDING("Pending"),
-    INPROGRESS("Inprogress"),
+    INPROGRESS("In Progress"),
     NEW("New");
 
     private String status;
