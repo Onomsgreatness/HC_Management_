@@ -363,4 +363,15 @@ public class HCModel {
         return referralManager.generateNextReferralId();
     }
 
+    public boolean hasAnyDataLoaded() {
+        return !patients.isEmpty()
+                || !clinicians.isEmpty()
+                || !facilities.isEmpty()
+                || !staff.isEmpty()
+                || !appointments.isEmpty()
+                || !prescriptions.isEmpty()
+                || !referralManager.getAllReferrals().isEmpty();
+    }
+
+
 }

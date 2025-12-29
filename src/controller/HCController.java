@@ -141,8 +141,22 @@ public class HCController {
             view.showSuccess("Data refreshed from CSV files.");
         });
 
+        view.setSaveAllListener(() -> {
+            if (!model.hasAnyDataLoaded()) {
+                view.showError("Not saving because model is empty (prevents wiping your CSV files).");
+                return;
+            }
+            model.saveAllData();
+            view.showSuccess("Saved all data to CSV.");
+        });
+
         // on close: save
-        view.setOnCloseListener(() -> model.saveAllData());
+        view.setOnCloseListener(() -> {
+            if (model.hasAnyDataLoaded()) {
+                model.saveAllData();
+            }
+        });
+
     }
 
     // ========== Helpers for "email text" / "document text" output ==========

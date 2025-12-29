@@ -20,11 +20,17 @@ public class HCView extends JFrame {
     private JTabbedPane tabbedPane;
 
     // Tables + models
-    private JTable patientsTable;        private DefaultTableModel patientsTM;
-    private JTable cliniciansTable;      private DefaultTableModel cliniciansTM;
-    private JTable appointmentsTable;    private DefaultTableModel appointmentsTM;
-    private JTable prescriptionsTable;   private DefaultTableModel prescriptionsTM;
-    private JTable referralsTable;       private DefaultTableModel referralsTM;
+    private JTable patientsTable;
+    private DefaultTableModel patientsTM;
+    private JTable cliniciansTable;
+    private DefaultTableModel cliniciansTM;
+    private JTable appointmentsTable;
+    private DefaultTableModel appointmentsTM;
+    private JTable prescriptionsTable;
+    private DefaultTableModel prescriptionsTM;
+    private JTable referralsTable;
+    private DefaultTableModel referralsTM;
+
 
     // Listeners (set by controller)
     private AddPatientListener addPatientListener;
@@ -48,6 +54,7 @@ public class HCView extends JFrame {
 
     private Runnable refreshAllListener;
     private Runnable onCloseListener;
+    private Runnable saveAllListener;
 
     public HCView() {
         setTitle("Healthcare Management System - MVC + Singleton Referral");
@@ -83,6 +90,10 @@ public class HCView extends JFrame {
         JButton refreshAllBtn = new JButton("Refresh All (Reload CSV)");
         refreshAllBtn.addActionListener(e -> { if (refreshAllListener != null) refreshAllListener.run(); });
         topBar.add(refreshAllBtn);
+
+        JButton saveAllBtn = new JButton("Save All Write CSV");
+        saveAllBtn.addActionListener(e -> {if (saveAllListener != null) saveAllListener.run(); });
+        topBar.add(saveAllBtn);
 
         add(topBar, BorderLayout.NORTH);
     }
@@ -867,6 +878,7 @@ public class HCView extends JFrame {
 
     public void setRefreshAllListener(Runnable r) { this.refreshAllListener = r; }
     public void setOnCloseListener(Runnable r) { this.onCloseListener = r; }
+    public void setSaveAllListener(Runnable r) { this.saveAllListener = r; }
 
     // ==================== Listener Interfaces ====================
     public interface DeleteListener { void onDelete(String id); }

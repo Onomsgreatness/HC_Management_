@@ -42,6 +42,8 @@ public class CSVHandler {
                 if (!line.trim().isEmpty()) {
                     lines.add(line);
                 }
+
+
             }
         } catch (IOException e) {
             System.err.println("Error reading file: " + filename);
