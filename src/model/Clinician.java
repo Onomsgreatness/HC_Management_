@@ -82,7 +82,7 @@ public class Clinician extends Worker {
         try{
             String[] parts = csvLine.split(",");
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            EmploymentStatus status = EmploymentStatus.valueOf(parts[10].trim());
+            EmploymentStatus status = EmploymentStatus.valueOf(parts[10]);
             return new Clinician(parts[0], parts[1], parts[2], parts[3], parts[4], Integer.parseInt(parts[5]), parts[6], parts[7],
                     parts[8], parts[9], status , sdf.parse(parts[11]));
         } catch (Exception e) {

@@ -185,7 +185,7 @@ public class  Referral {
     public static Referral fromCSV(String csvLine) {
         try{
             String[] parts = csvLine.split(",");
-            ReferralStatus status = ReferralStatus.valueOf(parts[11].trim());
+            ReferralStatus status = ReferralStatus.valueOf(parts[11]);
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
             return new Referral(

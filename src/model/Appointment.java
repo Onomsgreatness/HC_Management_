@@ -153,7 +153,7 @@ public class Appointment {
     public static Appointment fromCSV(String csvLine){
        try{
             String[] parts = csvLine.split(",");
-            StatusType status = StatusType.valueOf(parts[8].trim());
+            StatusType status = StatusType.valueOf(parts[8]);
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             return new Appointment(parts[0], parts[1], parts[2], parts[3], sdf.parse(parts[4]),
                     parts[5], Integer.parseInt(parts[6]), parts[7],status, parts[9], parts[10],
