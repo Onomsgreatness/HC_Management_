@@ -55,7 +55,5 @@ public class csv_reader {
             e.printStackTrace();
         }
 
-        HCModel p = new HCModel();
-        System.out.println("HCModels compiles");
     }
 }

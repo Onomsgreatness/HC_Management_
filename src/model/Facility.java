@@ -128,8 +128,8 @@ public class Facility {
 
     public static Facility fromCSV(String csvLine) {
         String[] parts = csvLine.split(",");
-        return new Facility(parts[0], parts[2], parts[3], parts[4], parts[5], parts[6], parts[7],
-                parts[8], parts[9], Integer.parseInt(parts[10]), parts[11]);
+        return new Facility(parts[0], parts[1], parts[2], parts[3], parts[4], parts[5], parts[6], parts[7],
+                parts[8], Integer.parseInt(parts[9]), parts[10]);
 
     }
     @Override

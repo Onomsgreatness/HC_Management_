@@ -29,14 +29,15 @@ public class ReferralManager {
             String referringToFacilityId, String urgencyLevel, String referralReason,
             String clinicalSummary, String requestedInvestigation, String appointmentId, String notes) {
 
-        String referralId = "R" + nextReferralId++;
+        String referralId = generateNextReferralId();
+        Date updateDate = new Date();
 
         Referral referral = new Referral(
                 referralId, patientId, referringClinicianId,
-                referredToClinicianId, referringFacilityId, referringToFacilityId, new Date(),
+                referredToClinicianId, referringFacilityId, referringToFacilityId, updateDate,
                 urgencyLevel, referralReason, clinicalSummary,
                 requestedInvestigation, ReferralStatus.NEW, appointmentId,
-                notes, new Date(), new Date()
+                notes, updateDate, updateDate
         );
 
         referrals.add(referral);
@@ -44,7 +45,29 @@ public class ReferralManager {
     }
 
     public void addReferral(Referral referral) {
+        if (referral == null) return;
         referrals.add(referral);
+
+        // Example IDs: R001, R12, R0007 etc.
+        String id = referral.getReferralId();
+        if (id != null && id.startsWith("R")) {
+            String numPart = id.substring(1).trim();
+
+            boolean allDigits = true;
+            for (int i = 0; i < numPart.length(); i++) {
+                if (!Character.isDigit(numPart.charAt(i))) {
+                    allDigits = false;
+                    break;
+                }
+            }
+
+            if (allDigits && !numPart.isEmpty()) {
+                int value = Integer.parseInt(numPart);
+                if (value >= nextReferralId) {
+                    nextReferralId = value + 1;
+                }
+            }
+        }
     }
 
     public ArrayList<Referral> getReferralsByStatus(ReferralStatus status) {
@@ -103,6 +126,12 @@ public class ReferralManager {
             }
         }
         return pending;
+    }
+
+    public String generateNextReferralId() {
+        String id = "R" + String.format("%03d", nextReferralId);
+        nextReferralId++;
+        return id;
     }
 
 //Contents of output text file (referrals and prescription content ) [10 points]??

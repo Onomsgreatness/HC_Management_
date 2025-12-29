@@ -359,8 +359,8 @@ public class HCModel {
         return referralManager.getPendingReferrals();
     }
 
-//    public String generateReferralId() {
-//        return referralManager.generateNextReferralId();
-//    }
+    public String generateReferralId() {
+        return referralManager.generateNextReferralId();
+    }
 
 }
