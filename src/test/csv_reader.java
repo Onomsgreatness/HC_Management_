@@ -15,19 +15,22 @@ public class csv_reader {
         //String path = "/Users/onomeabuku/Documents/HC_Management_/appointments.csv";
         String line = "";
 
-//        try {
-//            FileReader fr = new FileReader("appointments.csv");
-//            BufferedReader br = new BufferedReader(fr);
-//
-//            while((line = br.readLine()) != null) {
-//                System.out.println(line);
-//            }
-//        } catch (FileNotFoundException e) {
-//            e.printStackTrace();
-//        }  catch (IOException e) {
-//            e.printStackTrace();
-//        }
+        System.out.println("\n\n*******Appointments***********/n");
+        try {
+            FileReader fr = new FileReader("appointments.csv");
+            BufferedReader br = new BufferedReader(fr);
 
+            while((line = br.readLine()) != null) {
+                System.out.println(line);
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }  catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+        System.out.println("\n\n*******Facilities***********/n");
         try {
             FileReader fr = new FileReader("facilities.csv");
             BufferedReader br = new BufferedReader(fr);
@@ -41,6 +44,77 @@ public class csv_reader {
             e.printStackTrace();
         }
 
+        System.out.println("\n\n*******Patientss***********/n");
+        try {
+            FileReader fr = new FileReader("patients.csv");
+            BufferedReader br = new BufferedReader(fr);
+
+            while((line = br.readLine()) != null) {
+                System.out.println(line);
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }  catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("\n\n*******Clinicians***********/n");
+        try {
+            FileReader fr = new FileReader("clinicians.csv");
+            BufferedReader br = new BufferedReader(fr);
+
+            while((line = br.readLine()) != null) {
+                System.out.println(line);
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }  catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("\n\n*******Prescription***********/n");
+        try {
+            FileReader fr = new FileReader("prescriptions.csv");
+            BufferedReader br = new BufferedReader(fr);
+
+            while((line = br.readLine()) != null) {
+                System.out.println(line);
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }  catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("/\n\n*******Referral***********/n");
+        try {
+            FileReader fr = new FileReader("referrals.csv");
+            BufferedReader br = new BufferedReader(fr);
+
+            while((line = br.readLine()) != null) {
+                System.out.println(line);
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }  catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("\n\n*******Staff***********/n");
+        try {
+            FileReader fr = new FileReader("staff.csv");
+            BufferedReader br = new BufferedReader(fr);
+
+            while((line = br.readLine()) != null) {
+                System.out.println(line);
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }  catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("\n\nPatient Object");
         //=======Create a Patient instance===========
         try{
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");

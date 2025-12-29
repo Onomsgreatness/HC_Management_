@@ -163,7 +163,7 @@ public class Prescription {
     }
 
     public String toCSV(){
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         return prescriptionId + "," + patientId + "," + clinicianId + "," + appointmentId + ","
                 + sdf.format(prescriptionDate) + "," + medicationName + "," + dosage + "," + frequency
                 + "," + durationDays + "," + quantity + "," + instruction + "," + pharmacyName + ","
@@ -173,7 +173,7 @@ public class Prescription {
     public static Prescription fromCSV(String csvLine){
         try{
             String[] parts = csvLine.split(",");
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             return new Prescription(parts[0], parts[1], parts[2], parts[3], sdf.parse(parts[4]), parts[5],
                     parts[6], parts[7], Integer.parseInt(parts[8]), parts[9], parts[10], parts[11], parts[12],
                     sdf.parse(parts[13]), sdf.parse(parts[14]));
@@ -185,7 +185,7 @@ public class Prescription {
 
     @Override
     public String toString() {
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         return "Prescription{" +
                 "prescriptionId='" + prescriptionId + "\n" +
                 ", patientId=" + patientId +

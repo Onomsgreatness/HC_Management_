@@ -12,12 +12,12 @@ public class Facility {
     private String email;
     private String openingHours;
     private String managerName;
-    private int capacity;
+    private String capacity;
     private String specialitiesOffered;
 
     public Facility(String facilityId, String facilityName, String facilityType, String address,
                     String postCode, String contact, String email, String openingHours, String managerName,
-                    int capacity, String specialitiesOffered)
+                    String capacity, String specialitiesOffered)
     {
         this.facilityId = facilityId;
         this.facilityName = facilityName;
@@ -105,11 +105,11 @@ public class Facility {
         this.managerName = managerName;
     }
 
-    public int getCapacity() {
+    public String getCapacity() {
         return capacity;
     }
 
-    public void setCapacity(int capacity) {
+    public void setCapacity(String capacity) {
         this.capacity = capacity;
     }
 
@@ -129,7 +129,7 @@ public class Facility {
     public static Facility fromCSV(String csvLine) {
         String[] parts = csvLine.split(",");
         return new Facility(parts[0], parts[1], parts[2], parts[3], parts[4], parts[5], parts[6], parts[7],
-                parts[8], Integer.parseInt(parts[9]), parts[10]);
+                parts[8], parts[9], parts[10]);
 
     }
     @Override
