@@ -29,7 +29,7 @@ public class csv_reader {
 //        }
 
         try {
-            FileReader fr = new FileReader("clinicians.csv");
+            FileReader fr = new FileReader("facilities.csv");
             BufferedReader br = new BufferedReader(fr);
 
             while((line = br.readLine()) != null) {
