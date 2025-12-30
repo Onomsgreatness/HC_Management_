@@ -1,0 +1,36 @@
+=== REFERRAL EMAIL (SIMULATED) ===
+Referral ID: R0001
+Date: 2025-09-21
+Urgency: URGENT
+
+Patient: John Doe
+From Clinician: Dr Alice Smith
+To Clinician: Dr Clara Ng
+From Facility: City GP Surgery
+To Facility: Central Hospital
+
+Reason: Cardiology referral
+Clinical Summary: Chest pain and shortness of breath
+Requested Investigation: ECG + Echo
+Appointment ID: A004
+Notes: Needs urgent review
+=================================
+
+=== REFERRAL EMAIL (SIMULATED) ===
+Referral ID: R0002
+Date: 2025-09-21
+Urgency: ROUTINE
+
+Patient: John Doe
+From Clinician: Dr Alice Smith
+To Clinician: Dr Clara Ng
+From Facility: City GP Surgery
+To Facility: Central Hospital
+
+Reason: Routine neuro referral
+Clinical Summary: Headaches
+Requested Investigation: MRI
+Appointment ID: A011
+Notes: Routine review
+=================================
+

@@ -176,26 +176,69 @@ public class  Referral {
     public String toCSV() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         return referralId + "," + patientId + "," + referringClinicianId + "," + referredToClinicianId
-                + "," + referringFacilityId + "," + referringToFacilityId + "," + sdf.format(referralDate) + "," + urgencyLevel + ","
-                + referralReason + "," + clinicalSummary + "," + requestedInvestigation
-                + "," + status + "," + appointmentId + "," + notes + "," + sdf.format(createdDate)
-                + "," + sdf.format(lastUpdated);
+                + "," + referringFacilityId + "," + referringToFacilityId + "," + sdf.format(referralDate) + ","
+                + esc(urgencyLevel) + ","
+                + esc(referralReason) + ","
+                + esc(clinicalSummary) + ","
+                + esc(requestedInvestigation) + ","
+                + status.name() + ","
+                + appointmentId + ","
+                + esc(notes) + ","
+                + sdf.format(createdDate) + ","
+                + sdf.format(lastUpdated);
     }
 
+
     public static Referral fromCSV(String csvLine) {
-        try{
-            String[] parts = csvLine.split(",");
-            ReferralStatus status = ReferralStatus.valueOf(parts[11]);
+        try {
+            String[] parts = csvLine.split(",", -1); // keep empty fields
+
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
+            ReferralStatus status = ReferralStatus.fromCSV(parts[11]); // use your robust parser
+
             return new Referral(
-                    parts[0], parts[1], parts[2], parts[3], parts[4], parts[5], sdf.parse(parts[6]), parts[7],
-                    parts[8], parts[9], parts[10], status, parts[12], parts[13], sdf.parse(parts[14]), sdf.parse(parts[15])
+                    parts[0],                 // referralId
+                    parts[1],                 // patientId
+                    parts[2],                 // referringClinicianId
+                    parts[3],                 // referredToClinicianId
+                    parts[4],                 // referringFacilityId
+                    parts[5],                 // referringToFacilityId
+                    sdf.parse(parts[6]),      // referralDate
+                    unesc(parts[7]),          // urgencyLevel
+                    unesc(parts[8]),          // referralReason
+                    unesc(parts[9]),          // clinicalSummary
+                    unesc(parts[10]),         // requestedInvestigation
+                    status,                   // status
+                    parts[12],                // appointmentId
+                    unesc(parts[13]),         // notes
+                    sdf.parse(parts[14]),     // createdDate
+                    sdf.parse(parts[15])      // lastUpdated
             );
         } catch (Exception e) {
+            System.err.println("Referral.fromCSV failed for line:");
+            System.err.println(csvLine);
             e.printStackTrace();
             return null;
         }
+    }
+
+
+
+    /**
+     *As a result of csv file breaking while
+     * reading, due to lots of commas in it.
+     */
+
+    private static String esc(String s) {
+        if (s == null) return "";
+        // replace comma so split(",") stays safe
+        return s.replace(",", "<COMMA>");
+    }
+
+    private static String unesc(String s) {
+        if (s == null) return "";
+        return s.replace("<COMMA>", ",");
     }
 
     @Override

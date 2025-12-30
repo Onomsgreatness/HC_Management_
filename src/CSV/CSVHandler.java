@@ -3,6 +3,9 @@ package CSV;
 import java.io.*;
 import java.util.ArrayList;
 
+/**
+ * Utility class for handling CSV file operations
+ */
 public class CSVHandler {
 
     public static void writeLines(String filename, ArrayList<String> lines) {
@@ -28,22 +31,25 @@ public class CSVHandler {
     }
 
     public static ArrayList<String> readLines(String filename) {
-        ArrayList<String> lines = new ArrayList<String>();
+        ArrayList<String> lines = new ArrayList<>();
         BufferedReader reader = null;
         try {
             File file = new File(filename);
             if (!file.exists()) {
+                System.out.println("File not found: " + filename);
                 return lines;
             }
 
             reader = new BufferedReader(new FileReader(filename));
             String line;
+
+            // IMPORTANT: Skip the header line
+            reader.readLine();
+
             while ((line = reader.readLine()) != null) {
                 if (!line.trim().isEmpty()) {
                     lines.add(line);
                 }
-
-
             }
         } catch (IOException e) {
             System.err.println("Error reading file: " + filename);

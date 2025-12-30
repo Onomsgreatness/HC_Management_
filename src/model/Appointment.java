@@ -146,15 +146,17 @@ public class Appointment {
     public String toCSV() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         return appointmentId + "," + patientId + "," + clinicianID + "," + facilityId + "," +
-        sdf.format(appointmentDate) + "," + appointmentTime + "," + durationMinutes + "," + status.name() + "," +
-                reason_For_Visit + "," + notes + "," + sdf.format(createdDate) + "," + sdf.format(lastModified);
+        sdf.format(appointmentDate) + "," + appointmentTime + "," + durationMinutes + "," +
+                appointmentType + "," + status.name() + "," + reason_For_Visit + "," +
+                notes + "," + sdf.format(createdDate) + "," + sdf.format(lastModified);
     }
 
     public static Appointment fromCSV(String csvLine){
        try{
             String[] parts = csvLine.split(",");
-            StatusType status = StatusType.valueOf(parts[8]);
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            StatusType status = StatusType.fromCSV(parts[8]);
+
             return new Appointment(parts[0], parts[1], parts[2], parts[3], sdf.parse(parts[4]),
                     parts[5], Integer.parseInt(parts[6]), parts[7],status, parts[9], parts[10],
                     sdf.parse(parts[11]), sdf.parse(parts[12]));

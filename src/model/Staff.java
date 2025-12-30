@@ -84,7 +84,7 @@ public class Staff extends Worker {
     public static Staff fromCSV(String csvLine){
         try {
             String[] parts = csvLine.split(",");
-            EmploymentStatus status = EmploymentStatus.valueOf(parts[8]);
+            EmploymentStatus status = EmploymentStatus.fromCSV(parts[8]);
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             return new Staff(parts[0], parts[1], parts[2], parts[3], parts[4], parts[5], parts[6],
                             parts[7], status, sdf.parse(parts[9]), parts[10], parts[11]);

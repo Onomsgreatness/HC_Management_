@@ -1,21 +1,20 @@
 package model;
 
 import CSV.CSVHandler;
-import controller.ReferralManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
-/*References: Dr John Kanyaru*/
-
 public class HCModel {
-    private  HashMap<String, Patient> patients;
-    private  HashMap<String, Clinician> clinicians;
-    private  HashMap<String, Facility> facilities;
-    private  HashMap<String, Staff> staff;
-    private  HashMap<String, Appointment> appointments;
-    private  HashMap<String, Prescription> prescriptions;
-    private ReferralManager referralManager;
+
+    private final HashMap<String, Patient> patients = new HashMap<>();
+    private final HashMap<String, Clinician> clinicians = new HashMap<>();
+    private final HashMap<String, Facility> facilities = new HashMap<>();
+    private final HashMap<String, Staff> staff = new HashMap<>();
+    private final HashMap<String, Appointment> appointments = new HashMap<>();
+    private final HashMap<String, Prescription> prescriptions = new HashMap<>();
+
+    private final ReferralManager referralManager;
 
     private static final String PATIENTS_FILE = "patients.csv";
     private static final String CLINICIANS_FILE = "clinicians.csv";
@@ -25,18 +24,20 @@ public class HCModel {
     private static final String PRESCRIPTIONS_FILE = "prescriptions.csv";
     private static final String REFERRALS_FILE = "referrals.csv";
 
+    // default: load files
     public HCModel() {
-        patients = new HashMap<>();
-        clinicians = new HashMap<>();
-        facilities = new HashMap<>();
-        staff = new HashMap<>();
-        appointments = new HashMap<>();
-        prescriptions = new HashMap<>();
-        referralManager = ReferralManager.getInstance();
-
-        loadAllData();
+        this(true);
     }
 
+    // for testing: pass false
+    public HCModel(boolean loadFiles) {
+        referralManager = ReferralManager.getInstance();
+        if (loadFiles) {
+            loadAllData();
+        }
+    }
+
+    // ---------------- Load/Save All ----------------
     public void loadAllData() {
         loadFacilities();
         loadClinicians();
@@ -57,33 +58,31 @@ public class HCModel {
         saveReferrals();
     }
 
-    // ================Patient Management ==================
+    // ---------------- Patients ----------------
     private void loadPatients() {
         ArrayList<String> lines = CSVHandler.readLines(PATIENTS_FILE);
         for (int i = 0; i < lines.size(); i++) {
-            Patient patient = Patient.fromCSV(lines.get(i));
-            if (patient != null) {
-                patients.put(patient.getPatientId(), patient);
-            }
+            Patient p = Patient.fromCSV(lines.get(i));
+            if (p != null) patients.put(p.getPatientId(), p);
         }
     }
 
     private void savePatients() {
         ArrayList<String> lines = new ArrayList<>();
-        ArrayList<Patient> patientList = new ArrayList<>(patients.values());
-        for (int i = 0; i < patientList.size(); i++) {
-            lines.add(patientList.get(i).toCSV());
-        }
+        ArrayList<Patient> list = new ArrayList<>(patients.values());
+        for (int i = 0; i < list.size(); i++) lines.add(list.get(i).toCSV());
         CSVHandler.writeLines(PATIENTS_FILE, lines);
     }
 
-    public void addPatient(Patient patient) {
-        patients.put(patient.getPatientId(), patient);
+    public void addPatient(Patient p) {
+        if (p == null) return;
+        patients.put(p.getPatientId(), p);
         savePatients();
     }
 
-    public void updatePatient(String patientId, Patient updatePatient) {
-        patients.put(patientId, updatePatient);
+    public void updatePatient(String patientId, Patient updated) {
+        if (patientId == null || updated == null) return;
+        patients.put(patientId, updated);
         savePatients();
     }
 
@@ -104,34 +103,31 @@ public class HCModel {
         return "P" + String.format("%04d", patients.size() + 1);
     }
 
-
-    //=================== Clinician Management =====================
+    // ---------------- Clinicians ----------------
     private void loadClinicians() {
         ArrayList<String> lines = CSVHandler.readLines(CLINICIANS_FILE);
         for (int i = 0; i < lines.size(); i++) {
-            Clinician clinician = Clinician.fromCSV(lines.get(i));
-            if (clinician != null) {
-                clinicians.put(clinician.getClinicianId(), clinician);
-            }
+            Clinician c = Clinician.fromCSV(lines.get(i));
+            if (c != null) clinicians.put(c.getClinicianId(), c);
         }
     }
 
     private void saveClinicians() {
         ArrayList<String> lines = new ArrayList<>();
-        ArrayList<Clinician> clinicianList = new ArrayList<>(clinicians.values());
-        for (int i = 0; i < clinicianList.size(); i++) {
-            lines.add(clinicianList.get(i).toCSV());
-        }
+        ArrayList<Clinician> list = new ArrayList<>(clinicians.values());
+        for (int i = 0; i < list.size(); i++) lines.add(list.get(i).toCSV());
         CSVHandler.writeLines(CLINICIANS_FILE, lines);
     }
 
-    public void addClinician(Clinician clinician) {
-        clinicians.put(clinician.getClinicianId(), clinician);
+    public void addClinician(Clinician c) {
+        if (c == null) return;
+        clinicians.put(c.getClinicianId(), c);
         saveClinicians();
     }
 
-    public void updateClinician(String clinicianId, Clinician updatedClinician) {
-        clinicians.put(clinicianId, updatedClinician);
+    public void updateClinician(String clinicianId, Clinician updated) {
+        if (clinicianId == null || updated == null) return;
+        clinicians.put(clinicianId, updated);
         saveClinicians();
     }
 
@@ -152,29 +148,25 @@ public class HCModel {
         return "C" + String.format("%04d", clinicians.size() + 1);
     }
 
-    // =============== Facility Management ==============
-
+    // ---------------- Facilities ----------------
     private void loadFacilities() {
         ArrayList<String> lines = CSVHandler.readLines(FACILITIES_FILE);
         for (int i = 0; i < lines.size(); i++) {
-            Facility facility = Facility.fromCSV(lines.get(i));
-            if (facility != null) {
-                facilities.put(facility.getFacilityId(), facility);
-            }
+            Facility f = Facility.fromCSV(lines.get(i));
+            if (f != null) facilities.put(f.getFacilityId(), f);
         }
     }
 
     private void saveFacilities() {
         ArrayList<String> lines = new ArrayList<>();
-        ArrayList<Facility> facilityList = new ArrayList<>(facilities.values());
-        for (int i = 0; i < facilityList.size(); i++) {
-            lines.add(facilityList.get(i).toCSV());
-        }
+        ArrayList<Facility> list = new ArrayList<>(facilities.values());
+        for (int i = 0; i < list.size(); i++) lines.add(list.get(i).toCSV());
         CSVHandler.writeLines(FACILITIES_FILE, lines);
     }
 
-    public void addFacility(Facility facility) {
-        facilities.put(facility.getFacilityId(), facility);
+    public void addFacility(Facility f) {
+        if (f == null) return;
+        facilities.put(f.getFacilityId(), f);
         saveFacilities();
     }
 
@@ -186,23 +178,19 @@ public class HCModel {
         return new ArrayList<>(facilities.values());
     }
 
-    // =============== Staff Management ==============
+    // ---------------- Staff ----------------
     private void loadStaff() {
         ArrayList<String> lines = CSVHandler.readLines(STAFF_FILE);
         for (int i = 0; i < lines.size(); i++) {
-            Staff staffMember = Staff.fromCSV(lines.get(i));
-            if (staffMember != null) {
-                staff.put(staffMember.getStaffId(), staffMember);
-            }
+            Staff s = Staff.fromCSV(lines.get(i));
+            if (s != null) staff.put(s.getStaffId(), s);
         }
     }
 
     private void saveStaff() {
         ArrayList<String> lines = new ArrayList<>();
-        ArrayList<Staff> staffList = new ArrayList<>(staff.values());
-        for (int i = 0; i < staffList.size(); i++) {
-            lines.add(staffList.get(i).toCSV());
-        }
+        ArrayList<Staff> list = new ArrayList<>(staff.values());
+        for (int i = 0; i < list.size(); i++) lines.add(list.get(i).toCSV());
         CSVHandler.writeLines(STAFF_FILE, lines);
     }
 
@@ -214,33 +202,31 @@ public class HCModel {
         return new ArrayList<>(staff.values());
     }
 
-    // =============== Appointment Management ==============
+    // ---------------- Appointments ----------------
     private void loadAppointments() {
         ArrayList<String> lines = CSVHandler.readLines(APPOINTMENTS_FILE);
         for (int i = 0; i < lines.size(); i++) {
-            Appointment appointment = Appointment.fromCSV(lines.get(i));
-            if (appointment != null) {
-                appointments.put(appointment.getAppointmentId(), appointment);
-            }
+            Appointment a = Appointment.fromCSV(lines.get(i));
+            if (a != null) appointments.put(a.getAppointmentId(), a);
         }
     }
 
     private void saveAppointments() {
         ArrayList<String> lines = new ArrayList<>();
-        ArrayList<Appointment> appointmentList = new ArrayList<>(appointments.values());
-        for (int i = 0; i < appointmentList.size(); i++) {
-            lines.add(appointmentList.get(i).toCSV());
-        }
+        ArrayList<Appointment> list = new ArrayList<>(appointments.values());
+        for (int i = 0; i < list.size(); i++) lines.add(list.get(i).toCSV());
         CSVHandler.writeLines(APPOINTMENTS_FILE, lines);
     }
 
-    public void addAppointment(Appointment appointment) {
-        appointments.put(appointment.getAppointmentId(), appointment);
+    public void addAppointment(Appointment a) {
+        if (a == null) return;
+        appointments.put(a.getAppointmentId(), a);
         saveAppointments();
     }
 
-    public void updateAppointment(String appointmentId, Appointment updatedAppointment) {
-        appointments.put(appointmentId, updatedAppointment);
+    public void updateAppointment(String appointmentId, Appointment updated) {
+        if (appointmentId == null || updated == null) return;
+        appointments.put(appointmentId, updated);
         saveAppointments();
     }
 
@@ -261,33 +247,31 @@ public class HCModel {
         return "A" + String.format("%04d", appointments.size() + 1);
     }
 
-    // =============== Prescription Management ==============
+    // ---------------- Prescriptions ----------------
     private void loadPrescriptions() {
         ArrayList<String> lines = CSVHandler.readLines(PRESCRIPTIONS_FILE);
         for (int i = 0; i < lines.size(); i++) {
-            Prescription prescription = Prescription.fromCSV(lines.get(i));
-            if (prescription != null) {
-                prescriptions.put(prescription.getPrescriptionId(), prescription);
-            }
+            Prescription rx = Prescription.fromCSV(lines.get(i));
+            if (rx != null) prescriptions.put(rx.getPrescriptionId(), rx);
         }
     }
 
     private void savePrescriptions() {
         ArrayList<String> lines = new ArrayList<>();
-        ArrayList<Prescription> prescriptionList = new ArrayList<>(prescriptions.values());
-        for (int i = 0; i < prescriptionList.size(); i++) {
-            lines.add(prescriptionList.get(i).toCSV());
-        }
+        ArrayList<Prescription> list = new ArrayList<>(prescriptions.values());
+        for (int i = 0; i < list.size(); i++) lines.add(list.get(i).toCSV());
         CSVHandler.writeLines(PRESCRIPTIONS_FILE, lines);
     }
 
-    public void addPrescription(Prescription prescription, boolean generateDocument) {
-        prescriptions.put(prescription.getPrescriptionId(), prescription);
+    public void addPrescription(Prescription rx, boolean generateDocument) {
+        if (rx == null) return;
+        prescriptions.put(rx.getPrescriptionId(), rx);
         savePrescriptions();
     }
 
-    public void updatePrescription(String prescriptionId, Prescription updatedPrescription) {
-        prescriptions.put(prescriptionId, updatedPrescription);
+    public void updatePrescription(String prescriptionId, Prescription updated) {
+        if (prescriptionId == null || updated == null) return;
+        prescriptions.put(prescriptionId, updated);
         savePrescriptions();
     }
 
@@ -308,40 +292,33 @@ public class HCModel {
         return "RX" + String.format("%04d", prescriptions.size() + 1);
     }
 
-    // =============== Referral Management ==============
+    // ---------------- Referrals ----------------
     private void loadReferrals() {
         ArrayList<String> lines = CSVHandler.readLines(REFERRALS_FILE);
         for (int i = 0; i < lines.size(); i++) {
-            Referral referral = Referral.fromCSV(lines.get(i));
-            if (referral != null) {
-                referralManager.addReferral(referral);
-            }
+            Referral r = Referral.fromCSV(lines.get(i));
+            if (r != null) referralManager.addReferral(r);
         }
     }
 
     private void saveReferrals() {
         ArrayList<String> lines = new ArrayList<>();
-        ArrayList<Referral> referralList = referralManager.getAllReferrals();
-        for (int i = 0; i < referralList.size(); i++) {
-            lines.add(referralList.get(i).toCSV());
-        }
+        ArrayList<Referral> list = referralManager.getAllReferrals();
+        for (int i = 0; i < list.size(); i++) lines.add(list.get(i).toCSV());
         CSVHandler.writeLines(REFERRALS_FILE, lines);
     }
 
     public boolean createReferral(Referral referral) {
-        Patient patient = patients.get(referral.getPatientId());
-        Clinician referringClinician = clinicians.get(referral.getReferringClinicianId());
-        Clinician referredToClinician = clinicians.get(referral.getReferredToClinicianId());
-        Facility referringFacility = facilities.get(referral.getReferringFacilityId());
-        Facility referredToFacility = facilities.get(referral.getReferringToFacilityId());
+        if (referral == null) return false;
 
-        if (patient == null || referringClinician == null || referredToClinician == null ||
-                referringFacility == null || referredToFacility == null) {
-            return false;
-        }
+        // validate linked entities exist
+        if (getPatient(referral.getPatientId()) == null) return false;
+        if (getClinician(referral.getReferringClinicianId()) == null) return false;
+        if (getClinician(referral.getReferredToClinicianId()) == null) return false;
+        if (getFacility(referral.getReferringFacilityId()) == null) return false;
+        if (getFacility(referral.getReferringToFacilityId()) == null) return false;
 
         referralManager.addReferral(referral);
-
         saveReferrals();
         return true;
     }
@@ -363,6 +340,11 @@ public class HCModel {
         return referralManager.generateNextReferralId();
     }
 
+    public ReferralManager getReferralManager() {
+        return referralManager;
+    }
+
+    // ---------------- Safety ----------------
     public boolean hasAnyDataLoaded() {
         return !patients.isEmpty()
                 || !clinicians.isEmpty()
@@ -372,6 +354,4 @@ public class HCModel {
                 || !prescriptions.isEmpty()
                 || !referralManager.getAllReferrals().isEmpty();
     }
-
-
 }
