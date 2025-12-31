@@ -1,11 +1,16 @@
+/**
+ * Author: Onome Abuku <oa22aed@herts.ac.uk>
+ *     ID: 21092431
+ *     References: Dr. John Kanyaru, BookShop Example.
+ */
+
 package model;
 
 import java.util.Date;
-import java.text.SimpleDateFormat;
 
 public class Specialist extends Clinician {
 
-    public Specialist (String clinicianId, String title, String speciality, int gmcNumber, String workplaceId,
+    public Specialist (String clinicianId, String title, String speciality, String gmcNumber, String workplaceId,
                        String workplaceType, String firstName, String lastName, String email, String contact,
                        EmploymentStatus employmentStatus, Date startDate){
         super(clinicianId, firstName, lastName, title, speciality,
