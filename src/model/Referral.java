@@ -1,7 +1,17 @@
+/**
+ * Author: Onome Abuku <oa22aed@herts.ac.uk>
+ *     ID: 21092431
+ *     References: Dr. John Kanyaru, BookShop Example.
+ */
+
 package model;
 
+import CSV.CSVHandler;
+
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 
 public class  Referral {
@@ -175,83 +185,70 @@ public class  Referral {
 
     public String toCSV() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        return referralId + "," + patientId + "," + referringClinicianId + "," + referredToClinicianId
-                + "," + referringFacilityId + "," + referringToFacilityId + "," + sdf.format(referralDate) + ","
-                + esc(urgencyLevel) + ","
-                + esc(referralReason) + ","
-                + esc(clinicalSummary) + ","
-                + esc(requestedInvestigation) + ","
-                + status.name() + ","
-                + appointmentId + ","
-                + esc(notes) + ","
-                + sdf.format(createdDate) + ","
-                + sdf.format(lastUpdated);
+        List<String> fields = Arrays.asList( referralId ,patientId ,referringClinicianId , referredToClinicianId
+                ,referringFacilityId,referringToFacilityId,formatDate(sdf, referralDate), urgencyLevel,
+                referralReason ,clinicalSummary,requestedInvestigation, status == null ? "" : status.toCSV() ,
+                appointmentId , notes , formatDate(sdf, createdDate), formatDate(sdf, lastUpdated)
+        );
+        return CSVHandler.toLine(fields);
     }
 
 
     public static Referral fromCSV(String csvLine) {
         try {
-            String[] parts = csvLine.split(",", -1); // keep empty fields
+            List<String> parts = CSVHandler.parseLine(csvLine);
+            if (parts.size() < 16) return null;
 
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
-            ReferralStatus status = ReferralStatus.fromCSV(parts[11]); // use your robust parser
+            ReferralStatus status = ReferralStatus.fromCSV(parts.get(11)); // use your robust parser
 
             return new Referral(
-                    parts[0],                 // referralId
-                    parts[1],                 // patientId
-                    parts[2],                 // referringClinicianId
-                    parts[3],                 // referredToClinicianId
-                    parts[4],                 // referringFacilityId
-                    parts[5],                 // referringToFacilityId
-                    sdf.parse(parts[6]),      // referralDate
-                    unesc(parts[7]),          // urgencyLevel
-                    unesc(parts[8]),          // referralReason
-                    unesc(parts[9]),          // clinicalSummary
-                    unesc(parts[10]),         // requestedInvestigation
-                    status,                   // status
-                    parts[12],                // appointmentId
-                    unesc(parts[13]),         // notes
-                    sdf.parse(parts[14]),     // createdDate
-                    sdf.parse(parts[15])      // lastUpdated
+                    parts.get(0),
+                    parts.get(1),
+                    parts.get(2),
+                    parts.get(3),
+                    parts.get(4),
+                    parts.get(5),
+                    parseDate(sdf, parts.get(6)),
+                    parts.get(7),
+                    parts.get(8),
+                    parts.get(9),
+                    parts.get(10),
+                    status,
+                    parts.get(12),
+                    parts.get(13),
+                    parseDate(sdf, parts.get(14)),
+                    parseDate(sdf, parts.get(15))
             );
         } catch (Exception e) {
-            System.err.println("Referral.fromCSV failed for line:");
-            System.err.println(csvLine);
             e.printStackTrace();
             return null;
         }
     }
 
-
-
-    /**
-     *As a result of csv file breaking while
-     * reading, due to lots of commas in it.
-     */
-
-    private static String esc(String s) {
-        if (s == null) return "";
-        // replace comma so split(",") stays safe
-        return s.replace(",", "<COMMA>");
+    private static Date parseDate(SimpleDateFormat sdf, String value) throws Exception {
+        if (value == null) return null;
+        String v = value.trim();
+        if (v.isEmpty()) return null;
+        return sdf.parse(v);
     }
 
-    private static String unesc(String s) {
-        if (s == null) return "";
-        return s.replace("<COMMA>", ",");
+    private static String formatDate(SimpleDateFormat sdf, Date date) {
+        return date == null ? "" : sdf.format(date);
     }
 
     @Override
     public String toString() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        return "Referral{" +
+        return "model.Referral{" +
                 "referralId='" + referralId + "\n"+
                 ", patientId=" + patientId +
                 ", referringClinicianId='" + referringClinicianId + "\n"+
                 ", referredToClinicianId='" + referredToClinicianId + "\n" +
                 ", referringFacilityId='" + referringFacilityId + "\n" +
                 ", referringToFacilityId='" + referringToFacilityId + "\n" +
-                ", referralDate=" + sdf.format(referralDate) +
+                ", referralDate=" + formatDate(sdf, referralDate) +
                 ", urgencyLevel='" + urgencyLevel + "\n" +
                 ", referralReason='" + referralReason + "\n" +
                 ", clinicalSummary='" + clinicalSummary + "\n" +
@@ -259,8 +256,8 @@ public class  Referral {
                 ", requestedInvestigation='" + requestedInvestigation + "\n" +
                 ", appointmentId=" + appointmentId +
                 ", notes='" + notes + "\n" +
-                ", createdDate=" + sdf.format(createdDate) +
-                ", lastUpdated=" + sdf.format(lastUpdated) +
+                ", createdDate=" + formatDate(sdf, createdDate) +
+                ", lastUpdated=" + formatDate(sdf, lastUpdated) +
                 '}';
     }
 }
