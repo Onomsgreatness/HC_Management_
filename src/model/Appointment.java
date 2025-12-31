@@ -1,8 +1,17 @@
+/**
+ * Author: Onome Abuku <oa22aed@herts.ac.uk>
+ *     ID: 21092431
+ *     References: Dr. John Kanyaru, BookShop Example.
+ */
+
 package model;
 
+import CSV.CSVHandler;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.text.SimpleDateFormat;
+import java.util.List;
 
 
 public class Appointment {
@@ -40,7 +49,7 @@ public class Appointment {
     };
 
     public String getAppointmentId() {
-      return appointmentId;
+        return appointmentId;
     }
 
     public void setAppointmentId(String id) {
@@ -145,25 +154,44 @@ public class Appointment {
 
     public String toCSV() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        return appointmentId + "," + patientId + "," + clinicianID + "," + facilityId + "," +
-        sdf.format(appointmentDate) + "," + appointmentTime + "," + durationMinutes + "," +
-                appointmentType + "," + status.name() + "," + reason_For_Visit + "," +
-                notes + "," + sdf.format(createdDate) + "," + sdf.format(lastModified);
+
+        List<String> fields = Arrays.asList(
+                appointmentId,
+                patientId,
+                clinicianID,
+                facilityId,
+                sdf.format(appointmentDate),
+                appointmentTime,
+                String.valueOf(durationMinutes),
+                appointmentType,
+                status == null ? "" : status.toCSV(),     // write "Scheduled"/"Cancelled"
+                reason_For_Visit,
+                notes,
+                sdf.format(createdDate),
+                sdf.format(lastModified)
+        );
+
+        return CSVHandler.toLine(fields);
     }
 
-    public static Appointment fromCSV(String csvLine){
-       try{
-            String[] parts = csvLine.split(",");
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            StatusType status = StatusType.fromCSV(parts[8]);
+    public static Appointment fromCSV(String csvLine) {
+        try {
+            List<String> parts = CSVHandler.parseLine(csvLine);
+            if (parts.size() < 13) return null;
 
-            return new Appointment(parts[0], parts[1], parts[2], parts[3], sdf.parse(parts[4]),
-                    parts[5], Integer.parseInt(parts[6]), parts[7],status, parts[9], parts[10],
-                    sdf.parse(parts[11]), sdf.parse(parts[12]));
-       } catch (Exception e) {
-           e.printStackTrace();
-           return null;
-       }
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+            StatusType status = StatusType.fromCSV(parts.get(8));
+
+            return new Appointment(
+                    parts.get(0), parts.get(1), parts.get(2), parts.get(3), sdf.parse(parts.get(4)),
+                    parts.get(5), Integer.parseInt(parts.get(6)), parts.get(7), status, parts.get(9),
+                    parts.get(10), sdf.parse(parts.get(11)), sdf.parse(parts.get(12))
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Override
@@ -178,7 +206,7 @@ public class Appointment {
                 + "Appointment Time: " + appointmentTime + "\n"
                 + "Duration Minutes: " + durationMinutes + "\n"
                 + "Appointment Type: " + appointmentType + "\n"
-                + "Status: " + status + "\n"
+                + "Status: " + (status == null ? "" : status.toString()) + "\n"
                 + "Reason For Visit: " + reason_For_Visit + "\n"
                 + "Notes: " + notes + "\n"
                 + "Created Date: " + sdf.format(createdDate) + "\n"
