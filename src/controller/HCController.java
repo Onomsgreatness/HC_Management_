@@ -7,16 +7,16 @@
 package controller;
 
 import model.*;
-import view.HealthCareView;
+import view.HCView;
 
 import java.util.ArrayList;
 import java.util.Date;
 
-public class HealthCareController {
-    private HealthCareModel model;
-    private HealthCareView view;
+public class HCController {
+    private HCModel model;
+    private HCView view;
 
-    public HealthCareController(HealthCareModel model, HealthCareView view) {
+    public HCController(HCModel model, HCView view) {
         this.model = model;
         this.view = view;
 
