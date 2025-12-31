@@ -1,7 +1,17 @@
+/**
+ * Author: Onome Abuku <oa22aed@herts.ac.uk>
+ *     ID: 21092431
+ *     References: Dr. John Kanyaru, BookShop Example.
+ */
+
 package model;
 
+import CSV.CSVHandler;
+
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 
 public class Prescription {
@@ -164,34 +174,51 @@ public class Prescription {
 
     public String toCSV(){
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        return prescriptionId + "," + patientId + "," + clinicianId + "," + appointmentId + ","
-                + sdf.format(prescriptionDate) + "," + medicationName + "," + dosage + "," + frequency
-                + "," + durationDays + "," + quantity + "," + instruction + "," + pharmacyName + ","
-                + status + "," + sdf.format(issueDate) + "," + sdf.format(collectionDate);
+
+        List<String> fields = Arrays.asList( prescriptionId,patientId,clinicianId ,appointmentId ,
+                formatDate(sdf, prescriptionDate),medicationName ,dosage, frequency,
+                String.valueOf(durationDays),quantity ,instruction ,pharmacyName,
+                status, formatDate(sdf, issueDate), formatDate(sdf,collectionDate)
+        );
+        return CSVHandler.toLine(fields);
     }
 
     public static Prescription fromCSV(String csvLine){
         try{
-            String[] parts = csvLine.split(",");
+            List<String> parts = CSVHandler.parseLine(csvLine);
+            if (parts.size() < 15) return null;
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            return new Prescription(parts[0], parts[1], parts[2], parts[3], sdf.parse(parts[4]), parts[5],
-                    parts[6], parts[7], Integer.parseInt(parts[8]), parts[9], parts[10], parts[11], parts[12],
-                    sdf.parse(parts[13]), sdf.parse(parts[14]));
+            return new Prescription(parts.get(0), parts.get(1), parts.get(2), parts.get(3), parseDate(sdf, parts.get(4)),
+                    parts.get(5), parts.get(6), parts.get(7), Integer.parseInt(parts.get(8)), parts.get(9),
+                    parts.get(10), parts.get(11), parts.get(12), parseDate(sdf, parts.get(13)), parseDate(sdf, parts.get(14)));
         } catch(Exception e){
             e.printStackTrace();
             return null;
         }
     }
 
+
+    private static Date parseDate(SimpleDateFormat sdf, String value) throws Exception {
+        if (value == null) return null;
+        String v = value.trim();
+        if (v.isEmpty()) return null;
+        return sdf.parse(v);
+    }
+
+    private static String formatDate(SimpleDateFormat sdf, Date date) {
+        return date == null ? "" : sdf.format(date);
+    }
+
+
     @Override
     public String toString() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        return "Prescription{" +
+        return "model.Prescription{" +
                 "prescriptionId='" + prescriptionId + "\n" +
                 ", patientId=" + patientId +
                 ", clinicianId=" + clinicianId +
                 ", appointmentId=" + appointmentId +
-                ", prescriptionDate=" + sdf.format(prescriptionDate) +
+                ", prescriptionDate=" + formatDate(sdf, prescriptionDate) +
                 ", medicationName='" + medicationName + "\n"+
                 ", dosage='" + dosage + "\n" +
                 ", frequency='" + frequency + "\n" +
@@ -200,8 +227,8 @@ public class Prescription {
                 ", instruction='" + instruction + "\n" +
                 ", pharmacyName='" + pharmacyName + "\n" +
                 ", status=" + status + "\n" +
-                ", issueDate=" + sdf.format(issueDate) +
-                ", collectionDate=" + sdf.format(collectionDate) +
+                ", issueDate=" + formatDate(sdf, issueDate) +
+                ", collectionDate=" + formatDate(sdf, collectionDate) +
                 '}';
     }
 }
