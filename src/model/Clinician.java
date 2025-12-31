@@ -1,19 +1,29 @@
+/**
+ * Author: Onome Abuku <oa22aed@herts.ac.uk>
+ *     ID: 21092431
+ *     References: Dr. John Kanyaru, BookShop Example.
+ */
+
 package model;
 
+import CSV.CSVHandler;
+
+import java.util.Arrays;
 import java.util.Date;
 import java.text.SimpleDateFormat;
+import java.util.List;
 
 
 public class Clinician extends Worker {
     private String clinicianId;
     private String title;
     private String speciality;
-    private int gmcNumber;
+    private String gmcNumber;
     private String workplaceId;
     private String workplaceType;
 
     public Clinician(String clinicianId, String firstName, String lastName, String title, String speciality,
-                     int gmcNumber, String contact,String email,String workplaceId,
+                     String gmcNumber, String contact,String email,String workplaceId,
                      String workplaceType, EmploymentStatus employmentStatus, Date startDate){
         super(firstName, lastName, email, contact, employmentStatus, startDate);
         this.clinicianId = clinicianId;
@@ -47,11 +57,11 @@ public class Clinician extends Worker {
         this.speciality = speciality;
     }
 
-    public int getGmcNumber() {
+    public String getGmcNumber() {
         return gmcNumber;
     }
 
-    public void setGmcNumber(int gmcNumber) {
+    public void setGmcNumber(String gmcNumber) {
         this.gmcNumber = gmcNumber;
     }
 
@@ -73,18 +83,25 @@ public class Clinician extends Worker {
 
     public String toCSV() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        return clinicianId + "," + getFirstName() + "," + getLastName() + "," + title + "," + speciality + "," +
-                gmcNumber + "," + getContact() + "," + getEmail() + "," + workplaceId + "," + workplaceType + "," +
-                getEmploymentStatus().getStatus() + "," + sdf.format(getStartDate());
+
+        List<String> fields = Arrays.asList(
+                clinicianId, getFirstName(), getLastName(), title , speciality ,
+                gmcNumber, getContact(), getEmail(), workplaceId, workplaceType ,
+                getEmploymentStatus() == null ? "" : getEmploymentStatus().toCSV() ,sdf.format(getStartDate())
+        );
+        return CSVHandler.toLine(fields);
     }
 
     public static Clinician fromCSV(String csvLine){
         try{
-            String[] parts = csvLine.split(",");
+            List<String> parts = CSVHandler.parseLine(csvLine);
+            if (parts.size() < 12) return null;
+
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            EmploymentStatus status = EmploymentStatus.fromCSV(parts[10]);
-            return new Clinician(parts[0], parts[1], parts[2], parts[3], parts[4], Integer.parseInt(parts[5]), parts[6], parts[7],
-                    parts[8], parts[9], status , sdf.parse(parts[11]));
+            EmploymentStatus status = EmploymentStatus.fromCSV(parts.get(10));
+            return new Clinician(parts.get(0), parts.get(1), parts.get(2), parts.get(3), parts.get(4),
+                    parts.get(5), parts.get(6), parts.get(7),
+                    parts.get(8), parts.get(9), status , sdf.parse(parts.get(11)));
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -93,11 +110,12 @@ public class Clinician extends Worker {
 
     @Override
     public String toString(){
-        return super.toString() + "Clinicians {" + " Clinician Id: " + clinicianId + "\n"
+        return super.toString() + "Clinicians {" + " model.Clinician Id: " + clinicianId + "\n"
                 + "Title: " + title + "\n"
                 + "Speciality: " + speciality + "\n"
                 + "Gmc Number: " + gmcNumber + "\n"
                 + "Work place id: " + workplaceId + "\n"
-                + "Work place type: " + workplaceType;
-     }
+                + "Work place type: " + workplaceType + "\n"
+                + "}";
+    }
 }
