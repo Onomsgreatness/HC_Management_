@@ -1,13 +1,23 @@
+/**
+ * Author: Onome Abuku <oa22aed@herts.ac.uk>
+ *     ID: 21092431
+ *     References: Dr. John Kanyaru, BookShop Example.
+ */
+
 package model;
 
 public enum StatusType {
     SCHEDULED("Scheduled"),
     CANCELLED("Cancelled");
 
-    private String status;
+    private final String status;
 
     StatusType(String status){
         this.status = status;
+    }
+
+    public String toCSV() {
+        return status;
     }
 
     public static StatusType fromCSV(String value) {
@@ -27,10 +37,11 @@ public enum StatusType {
         if (part.equals("CANCELLED"))
             return CANCELLED;
 
-        throw new IllegalArgumentException("Unknown EmploymentStatus: " + value);
+        throw new IllegalArgumentException("Unknown StatusType: " + value);
     }
+
     @Override
     public String toString() {
-        return "status: " + status;
+        return status;
     }
 }
