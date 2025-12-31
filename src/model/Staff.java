@@ -1,7 +1,17 @@
+/**
+ * Author: Onome Abuku <oa22aed@herts.ac.uk>
+ *     ID: 21092431
+ *     References: Dr. John Kanyaru, BookShop Example.
+ */
+
 package model;
 
+import CSV.CSVHandler;
+
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 public class Staff extends Worker {
     private String staffId;
@@ -75,32 +85,49 @@ public class Staff extends Worker {
 
     public String toCSV(){
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        return staffId + "," + getFirstName() + "," + getLastName() + "," + role + "," + department
-                + "," + facilityID + "," + getContact() + "," + getEmail()
-                + "," + getEmploymentStatus().getStatus()
-                + "," + sdf.format(getStartDate()) + "," + lineManager + "," + accessLevel;
+
+        List<String> fields = Arrays.asList(
+                staffId ,getFirstName() ,getLastName() , role, department,
+                facilityID ,getContact() ,getEmail(),
+                getEmploymentStatus() == null ? "" : getEmploymentStatus().toCSV(),
+                formatDate(sdf, getStartDate()),lineManager, accessLevel
+        );
+        return CSVHandler.toLine(fields);
     }
 
     public static Staff fromCSV(String csvLine){
         try {
-            String[] parts = csvLine.split(",");
-            EmploymentStatus status = EmploymentStatus.fromCSV(parts[8]);
+            List<String> parts = CSVHandler.parseLine(csvLine);
+            if (parts.size() < 12) return null;
+
+            EmploymentStatus status = EmploymentStatus.fromCSV(parts.get(8));
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            return new Staff(parts[0], parts[1], parts[2], parts[3], parts[4], parts[5], parts[6],
-                            parts[7], status, sdf.parse(parts[9]), parts[10], parts[11]);
+            return new Staff(parts.get(0), parts.get(1), parts.get(2), parts.get(3), parts.get(4), parts.get(5),
+                    parts.get(6), parts.get(7), status, parseDate(sdf, parts.get(9)), parts.get(10), parts.get(11));
         } catch (Exception e){
             e.printStackTrace();
             return null;
         }
     }
 
+    private static Date parseDate(SimpleDateFormat sdf, String value) throws Exception {
+        if (value == null) return null;
+        String v = value.trim();
+        if (v.isEmpty()) return null;
+        return sdf.parse(v);
+    }
+
+    private static String formatDate(SimpleDateFormat sdf, Date date) {
+        return date == null ? "" : sdf.format(date);
+    }
+
     @Override
     public String toString(){
         return super.toString() + "\n"
-                + "Staff Id: " +  staffId + "\n"
+                + "model.Staff Id: " +  staffId + "\n"
                 + "Role: " + role + "\n"
                 + "Department: " + department + "\n"
-                + "Facility Id: " + facilityID + "\n"
+                + "model.Facility Id: " + facilityID + "\n"
                 + "Line Manager: " + lineManager+ "\n"
                 + "Access Level: " + accessLevel;
     }
