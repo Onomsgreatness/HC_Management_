@@ -1,6 +1,7 @@
 package controller;
 
 import model.*;
+import view.HCView;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -10,23 +11,164 @@ import java.util.ArrayList;
 import java.util.Date;
 
 /**
- * Controller for Healthcare Referral/Prescription System
- * Coordinates Model and View (MVC)
+ * HCController (MVC)
+ * - Listener interfaces live here (Bookshop style)
+ * - Referrals are processed by ReferralManager (Singleton) to avoid duplication
  */
 public class HCController {
-    private final HCModel model;
-    private final view.HCView view;
 
-    public HCController(HCModel model, view.HCView view) {
+    // ================== Controller fields ==================
+
+    private final HCModel model;
+    private final HCView view;
+
+    private static final String PRESCRIPTION_OUTPUT_FILE = "prescriptions_output.txt";
+
+    public HCController(HCModel model, HCView view) {
         this.model = model;
         this.view = view;
 
-        initView();
-        wireListeners();
+        wireViewListeners();
+        loadIntoTables();
     }
 
-    private void initView() {
-        // initial load into UI tables
+    // ================== Wiring ==================
+
+    private void wireViewListeners() {
+
+        // Patients
+        view.setAddPatientListener(p -> {
+            model.addPatient(p);
+            loadIntoTables();
+            view.showSuccess("Patient added.");
+        });
+
+        view.setUpdatePatientListener((id, updated) -> {
+            model.updatePatient(id, updated);
+            loadIntoTables();
+            view.showSuccess("Patient updated.");
+        });
+
+        view.setDeletePatientListener(id -> {
+            model.deletePatient(id);
+            loadIntoTables();
+            view.showSuccess("Patient deleted.");
+        });
+
+        // Clinicians
+        view.setAddClinicianListener(c -> {
+            model.addClinician(c);
+            loadIntoTables();
+            view.showSuccess("Clinician added.");
+        });
+
+        view.setUpdateClinicianListener((id, updated) -> {
+            model.updateClinician(id, updated);
+            loadIntoTables();
+            view.showSuccess("Clinician updated.");
+        });
+
+        view.setDeleteClinicianListener(id -> {
+            model.deleteClinician(id);
+            loadIntoTables();
+            view.showSuccess("Clinician deleted.");
+        });
+
+        // Appointments
+        view.setAddAppointmentListener(a -> {
+            model.addAppointment(a);
+            loadIntoTables();
+            view.showSuccess("Appointment added.");
+        });
+
+        view.setUpdateAppointmentListener((id, updated) -> {
+            model.updateAppointment(id, updated);
+            loadIntoTables();
+            view.showSuccess("Appointment updated.");
+        });
+
+        view.setDeleteAppointmentListener(id -> {
+            model.deleteAppointment(id);
+            loadIntoTables();
+            view.showSuccess("Appointment deleted.");
+        });
+
+        // Prescriptions
+        view.setAddPrescriptionListener((rx, generateDoc) -> {
+            model.addPrescription(rx, generateDoc);
+            if (generateDoc) writePrescriptionText(rx);
+            loadIntoTables();
+            view.showSuccess("Prescription added.");
+        });
+
+        view.setUpdatePrescriptionListener((id, updated) -> {
+            model.updatePrescription(id, updated);
+            loadIntoTables();
+            view.showSuccess("Prescription updated.");
+        });
+
+        view.setDeletePrescriptionListener(id -> {
+            model.deletePrescription(id);
+            loadIntoTables();
+            view.showSuccess("Prescription deleted.");
+        });
+
+        // Referrals (Singleton does output)
+        view.setCreateReferralListener((ref, autoProcess) -> {
+            boolean ok = model.createReferral(ref);
+            if (!ok) {
+                view.showError("Referral failed: check Patient/Clinician/Facility IDs exist.");
+                return;
+            }
+
+            // queue + optionally process (ReferralManager writes referral output + audit)
+            ReferralManager.getInstance().enqueueReferral(ref);
+
+            if (autoProcess) {
+                ReferralManager.getInstance().processNextReferral(model);
+            }
+
+            loadIntoTables();
+            view.showSuccess(autoProcess ? "Referral created & processed." : "Referral created & queued.");
+        });
+
+        view.setUpdateReferralStatusListener((refId, status) -> {
+            model.updateReferralStatus(refId, status);
+            loadIntoTables();
+            view.showSuccess("Referral status updated.");
+        });
+
+//        view.setProcessNextReferralListener(() -> {
+//            ReferralManager.getInstance().processNextReferral(model);
+//            loadIntoTables();
+//            view.showSuccess("Processed next referral (if any).");
+//        });
+
+        // Refresh / Save
+        view.setRefreshAllListener(() -> {
+            model.loadAllData();
+            loadIntoTables();
+            view.showSuccess("Refreshed from CSV files.");
+        });
+
+        view.setSaveAllListener(() -> {
+            if (!model.hasAnyDataLoaded()) {
+                view.showError("Model empty - not saving (prevents wiping CSV).");
+                return;
+            }
+            model.saveAllData();
+            view.showSuccess("Saved all data.");
+        });
+
+        // Close
+        view.setOnCloseListener(() -> {
+            if (model.hasAnyDataLoaded()) model.saveAllData();
+        });
+    }
+
+    // ================== Table refresh ==================
+
+    private void loadIntoTables() {
         view.refreshPatientsTable(model.getAllPatients());
         view.refreshCliniciansTable(model.getAllClinicians());
         view.refreshAppointmentsTable(model.getAllAppointments());
@@ -34,203 +176,25 @@ public class HCController {
         view.refreshReferralsTable(model.getAllReferrals());
     }
 
-    private void wireListeners() {
-        // PATIENTS
-        view.setAddPatientListener(p -> {
-            model.addPatient(p);
-            view.refreshPatientsTable(model.getAllPatients());
-            view.showSuccess("Patient added.");
-        });
-
-        view.setUpdatePatientListener((patientId, updated) -> {
-            model.updatePatient(patientId, updated);
-            view.refreshPatientsTable(model.getAllPatients());
-            view.showSuccess("Patient updated.");
-        });
-
-        view.setDeletePatientListener(patientId -> {
-            model.deletePatient(patientId);
-            view.refreshPatientsTable(model.getAllPatients());
-            view.showSuccess("Patient deleted.");
-        });
-
-        // CLINICIANS
-        view.setAddClinicianListener(c -> {
-            model.addClinician(c);
-            view.refreshCliniciansTable(model.getAllClinicians());
-            view.showSuccess("Clinician added.");
-        });
-
-        view.setUpdateClinicianListener((id, updated) -> {
-            model.updateClinician(id, updated);
-            view.refreshCliniciansTable(model.getAllClinicians());
-            view.showSuccess("Clinician updated.");
-        });
-
-        view.setDeleteClinicianListener(id -> {
-            model.deleteClinician(id);
-            view.refreshCliniciansTable(model.getAllClinicians());
-            view.showSuccess("Clinician deleted.");
-        });
-
-        // APPOINTMENTS
-        view.setAddAppointmentListener(a -> {
-            model.addAppointment(a);
-            view.refreshAppointmentsTable(model.getAllAppointments());
-            view.showSuccess("Appointment added.");
-        });
-
-        view.setUpdateAppointmentListener((id, updated) -> {
-            model.updateAppointment(id, updated);
-            view.refreshAppointmentsTable(model.getAllAppointments());
-            view.showSuccess("Appointment updated.");
-        });
-
-        view.setDeleteAppointmentListener(id -> {
-            model.deleteAppointment(id);
-            view.refreshAppointmentsTable(model.getAllAppointments());
-            view.showSuccess("Appointment deleted.");
-        });
-
-        // PRESCRIPTIONS
-        view.setAddPrescriptionListener((rx, generateDoc) -> {
-            model.addPrescription(rx, generateDoc);
-            if (generateDoc) {
-                writePrescriptionText(rx);
-            }
-            view.refreshPrescriptionsTable(model.getAllPrescriptions());
-            view.showSuccess("Prescription added.");
-        });
-
-        view.setUpdatePrescriptionListener((id, updated) -> {
-            model.updatePrescription(id, updated);
-            view.refreshPrescriptionsTable(model.getAllPrescriptions());
-            view.showSuccess("Prescription updated.");
-        });
-
-        view.setDeletePrescriptionListener(id -> {
-            model.deletePrescription(id);
-            view.refreshPrescriptionsTable(model.getAllPrescriptions());
-            view.showSuccess("Prescription deleted.");
-        });
-
-        // REFERRALS (Singleton handled inside model via ReferralManager)
-        view.setCreateReferralListener((referral, generateDoc) -> {
-            boolean ok = model.createReferral(referral);
-            if (!ok) {
-                view.showError("Referral failed: check Patient/Clinician/Facility IDs exist.");
-                return;
-            }
-            if (generateDoc) {
-                writeReferralEmailText(referral);
-            }
-            view.refreshReferralsTable(model.getAllReferrals());
-            view.showSuccess("Referral created.");
-        });
-
-        view.setUpdateReferralStatusListener((referralId, newStatus) -> {
-            model.updateReferralStatus(referralId, newStatus);
-            view.refreshReferralsTable(model.getAllReferrals());
-            view.showSuccess("Referral status updated.");
-        });
-
-        // refresh all
-        view.setRefreshAllListener(() -> {
-            model.loadAllData();
-            initView();
-            view.showSuccess("Data refreshed from CSV files.");
-        });
-
-        view.setSaveAllListener(() -> {
-            if (!model.hasAnyDataLoaded()) {
-                view.showError("Not saving because model is empty (prevents wiping your CSV files).");
-                return;
-            }
-            model.saveAllData();
-            view.showSuccess("Saved all data to CSV.");
-        });
-
-        // on close: save
-        view.setOnCloseListener(() -> {
-            if (model.hasAnyDataLoaded()) {
-                model.saveAllData();
-            }
-        });
-
-    }
-
-    // ========== Helpers for "email text" / "document text" output ==========
-
-    private void writeReferralEmailText(Referral r) {
-        // requirement: do NOT send real email; generate content and persist in file
-        Patient p = model.getPatient(r.getPatientId());
-        Clinician from = model.getClinician(r.getReferringClinicianId());
-        Clinician to = model.getClinician(r.getReferredToClinicianId());
-        Facility fromFac = model.getFacility(r.getReferringFacilityId());
-        Facility toFac = model.getFacility(r.getReferringToFacilityId());
-
-        String filename = "referral_" + r.getReferralId() + ".txt";
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("=== ELECTRONIC REFERRAL (Simulated Email) ===\n");
-        sb.append("Referral ID: ").append(r.getReferralId()).append("\n");
-        sb.append("Date: ").append(sdf.format(r.getReferralDate())).append("\n\n");
-
-        sb.append("TO (Receiving Clinician/Service):\n");
-        sb.append("  ").append(to != null ? to.getTitle() + " " + to.getFirstName() + " " + to.getLastName() : "Unknown").append("\n");
-        sb.append("  Facility: ").append(toFac != null ? toFac.getFacilityName() : "Unknown").append("\n\n");
-
-        sb.append("FROM (Referring Clinician):\n");
-        sb.append("  ").append(from != null ? from.getTitle() + " " + from.getFirstName() + " " + from.getLastName() : "Unknown").append("\n");
-        sb.append("  Facility: ").append(fromFac != null ? fromFac.getFacilityName() : "Unknown").append("\n\n");
-
-        sb.append("PATIENT DETAILS:\n");
-        if (p != null) {
-            sb.append("  Name: ").append(p.getFirstName()).append(" ").append(p.getLastName()).append("\n");
-            sb.append("  Patient ID: ").append(p.getPatientId()).append("\n");
-            sb.append("  NHS Number: ").append(p.getNhsNumber()).append("\n");
-            sb.append("  Contact: ").append(p.getContact()).append("\n");
-        } else {
-            sb.append("  Unknown patient\n");
-        }
-        sb.append("\n");
-
-        sb.append("URGENCY: ").append(r.getUrgencyLevel()).append("\n");
-        sb.append("REASON: ").append(r.getReferralReason()).append("\n\n");
-
-        sb.append("CLINICAL SUMMARY:\n").append(r.getClinicalSummary()).append("\n\n");
-        sb.append("REQUESTED INVESTIGATION:\n").append(r.getRequestedInvestigation()).append("\n\n");
-
-        sb.append("APPOINTMENT LINK: ").append(r.getAppointmentId()).append("\n");
-        sb.append("STATUS: ").append(r.getStatus()).append("\n\n");
-
-        sb.append("NOTES:\n").append(r.getNotes()).append("\n");
-        sb.append("============================================\n");
-
-        appendToFile(filename, sb.toString());
-        // Also append a short line to a global audit file:
-        appendToFile("referrals_audit_log.txt",
-                sdf.format(new Date()) + " - Created referral " + r.getReferralId() + " for patient " + r.getPatientId() + "\n");
-    }
+    // ================== Prescription document output ==================
 
     private void writePrescriptionText(Prescription rx) {
         Patient p = model.getPatient(rx.getPatientId());
         Clinician c = model.getClinician(rx.getClinicianId());
+
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
-        String filename = "prescription_" + rx.getPrescriptionId() + ".txt";
         StringBuilder sb = new StringBuilder();
         sb.append("=== PRESCRIPTION DOCUMENT (Simulated) ===\n");
         sb.append("Prescription ID: ").append(rx.getPrescriptionId()).append("\n");
-        sb.append("Date: ").append(sdf.format(rx.getPrescriptionDate())).append("\n\n");
+        sb.append("Date: ").append(rx.getPrescriptionDate() != null ? sdf.format(rx.getPrescriptionDate()) : "N/A").append("\n\n");
 
         sb.append("PATIENT:\n");
         if (p != null) {
             sb.append("  ").append(p.getFirstName()).append(" ").append(p.getLastName()).append("\n");
             sb.append("  NHS: ").append(p.getNhsNumber()).append("\n");
         } else {
-            sb.append("  Unknown patient\n");
+            sb.append("  Unknown patient: ").append(rx.getPatientId()).append("\n");
         }
         sb.append("\n");
 
@@ -239,7 +203,7 @@ public class HCController {
             sb.append("  ").append(c.getTitle()).append(" ").append(c.getFirstName()).append(" ").append(c.getLastName()).append("\n");
             sb.append("  Speciality: ").append(c.getSpeciality()).append("\n");
         } else {
-            sb.append("  Unknown clinician\n");
+            sb.append("  Unknown clinician: ").append(rx.getClinicianId()).append("\n");
         }
         sb.append("\n");
 
@@ -247,18 +211,18 @@ public class HCController {
         sb.append("  Name: ").append(rx.getMedicationName()).append("\n");
         sb.append("  Dosage: ").append(rx.getDosage()).append("\n");
         sb.append("  Frequency: ").append(rx.getFrequency()).append("\n");
-        sb.append("  Duration (days): ").append(rx.getDurationDays()).append("\n");
+        sb.append("  DurationDays: ").append(rx.getDurationDays()).append("\n");
         sb.append("  Quantity: ").append(rx.getQuantity()).append("\n");
         sb.append("  Instructions: ").append(rx.getInstruction()).append("\n\n");
 
-        sb.append("PHARMACY:\n");
-        sb.append("  ").append(rx.getPharmacyName()).append("\n");
-        sb.append("Status: ").append(rx.getStatus()).append("\n");
-        sb.append("========================================\n");
+        sb.append("PHARMACY: ").append(rx.getPharmacyName()).append("\n");
+        sb.append("STATUS: ").append(rx.getStatus()).append("\n");
+        sb.append("========================================\n\n");
 
-        appendToFile(filename, sb.toString());
+        appendToFile(PRESCRIPTION_OUTPUT_FILE, sb.toString());
         appendToFile("prescriptions_audit_log.txt",
-                sdf.format(new Date()) + " - Created prescription " + rx.getPrescriptionId() + " for patient " + rx.getPatientId() + "\n");
+                sdf.format(new Date()) + " - Created prescription " + rx.getPrescriptionId()
+                        + " for patient " + rx.getPatientId() + "\n");
     }
 
     private void appendToFile(String filename, String content) {
@@ -270,7 +234,7 @@ public class HCController {
         }
     }
 
-    // ===== Convenience ID generators to help the view dialogs =====
+    // convenience helpers (optional)
     public String nextPatientId() { return model.generatePatientId(); }
     public String nextClinicianId() { return model.generateClinicianId(); }
     public String nextAppointmentId() { return model.generateAppointmentId(); }
@@ -280,4 +244,30 @@ public class HCController {
     public ArrayList<Facility> getAllFacilities() { return model.getAllFacilities(); }
     public ArrayList<Patient> getAllPatients() { return model.getAllPatients(); }
     public ArrayList<Clinician> getAllClinicians() { return model.getAllClinicians(); }
+
+    // ================== Listener Interfaces (Bookshop style) ==================
+
+    public interface AddPatientListener { void onAddPatient(Patient p); }
+    public interface UpdatePatientListener { void onUpdatePatient(String patientId, Patient updated); }
+    public interface DeletePatientListener { void onDeletePatient(String patientId); }
+
+    public interface AddClinicianListener { void onAddClinician(Clinician c); }
+    public interface UpdateClinicianListener { void onUpdateClinician(String clinicianId, Clinician updated); }
+    public interface DeleteClinicianListener { void onDeleteClinician(String clinicianId); }
+
+    public interface AddAppointmentListener { void onAddAppointment(Appointment a); }
+    public interface UpdateAppointmentListener { void onUpdateAppointment(String appointmentId, Appointment updated); }
+    public interface DeleteAppointmentListener { void onDeleteAppointment(String appointmentId); }
+
+    public interface AddPrescriptionListener { void onAddPrescription(Prescription rx, boolean generateDoc); }
+    public interface UpdatePrescriptionListener { void onUpdatePrescription(String rxId, Prescription updated); }
+    public interface DeletePrescriptionListener { void onDeletePrescription(String rxId); }
+
+    public interface CreateReferralListener { void onCreateReferral(Referral r, boolean autoProcess); }
+    public interface UpdateReferralStatusListener { void onUpdateReferralStatus(String referralId, ReferralStatus status); }
+    public interface ProcessNextReferralListener { void onProcessNextReferral(); }
+
+    public interface RefreshAllListener { void onRefreshAll(); }
+    public interface SaveAllListener { void onSaveAll(); }
+    public interface OnCloseListener { void onClose(); }
 }

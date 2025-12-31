@@ -1,4 +1,0 @@
-Tue Dec 30 02:35:40 GMT 2025 | EMAIL_GENERATED | referralId=R0001 | patientId=P001
-Tue Dec 30 02:35:40 GMT 2025 | REFERRAL_COMPLETED | referralId=R0001 | patientId=P001
-Tue Dec 30 02:35:40 GMT 2025 | EMAIL_GENERATED | referralId=R0002 | patientId=P001
-Tue Dec 30 02:35:40 GMT 2025 | REFERRAL_COMPLETED | referralId=R0002 | patientId=P001

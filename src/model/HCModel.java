@@ -3,6 +3,7 @@ package model;
 import CSV.CSVHandler;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
 public class HCModel {
@@ -61,14 +62,17 @@ public class HCModel {
     // ---------------- Patients ----------------
     private void loadPatients() {
         ArrayList<String> lines = CSVHandler.readLines(PATIENTS_FILE);
-        for (int i = 0; i < lines.size(); i++) {
+        for (int i = 1; i < lines.size(); i++) {
             Patient p = Patient.fromCSV(lines.get(i));
             if (p != null) patients.put(p.getPatientId(), p);
         }
+        System.out.println("Loaded " + patients.size() + " patients");
     }
 
     private void savePatients() {
         ArrayList<String> lines = new ArrayList<>();
+        lines.add("patientId,firstName,lastName,dob,nhsNumber,gender,contact," +
+                "email,address,postcode,emergencyName,emergencyContact,registrationDate,gpSurgeryId");
         ArrayList<Patient> list = new ArrayList<>(patients.values());
         for (int i = 0; i < list.size(); i++) lines.add(list.get(i).toCSV());
         CSVHandler.writeLines(PATIENTS_FILE, lines);
@@ -106,14 +110,17 @@ public class HCModel {
     // ---------------- Clinicians ----------------
     private void loadClinicians() {
         ArrayList<String> lines = CSVHandler.readLines(CLINICIANS_FILE);
-        for (int i = 0; i < lines.size(); i++) {
+        for (int i = 1; i < lines.size(); i++) {
             Clinician c = Clinician.fromCSV(lines.get(i));
             if (c != null) clinicians.put(c.getClinicianId(), c);
         }
+        System.out.println("Loaded " + clinicians.size() + " clinicians");
     }
 
     private void saveClinicians() {
         ArrayList<String> lines = new ArrayList<>();
+        lines.add("clinicianId, firstName, lastName, title,speciality, " +
+        "gmcNumber,contact, email,workplaceId, workplaceType, employmentStatus, startDate");
         ArrayList<Clinician> list = new ArrayList<>(clinicians.values());
         for (int i = 0; i < list.size(); i++) lines.add(list.get(i).toCSV());
         CSVHandler.writeLines(CLINICIANS_FILE, lines);
@@ -151,14 +158,17 @@ public class HCModel {
     // ---------------- Facilities ----------------
     private void loadFacilities() {
         ArrayList<String> lines = CSVHandler.readLines(FACILITIES_FILE);
-        for (int i = 0; i < lines.size(); i++) {
+        for (int i = 1; i < lines.size(); i++) {
             Facility f = Facility.fromCSV(lines.get(i));
             if (f != null) facilities.put(f.getFacilityId(), f);
         }
+        System.out.println("Loaded " + facilities.size() + " facilities");
     }
 
     private void saveFacilities() {
         ArrayList<String> lines = new ArrayList<>();
+        lines.add("facilityId,facilityName, facilityType, address,postCode, contact, email, " +
+                "openingHours, managerName,capacity, specialitiesOffered");
         ArrayList<Facility> list = new ArrayList<>(facilities.values());
         for (int i = 0; i < list.size(); i++) lines.add(list.get(i).toCSV());
         CSVHandler.writeLines(FACILITIES_FILE, lines);
@@ -181,14 +191,17 @@ public class HCModel {
     // ---------------- Staff ----------------
     private void loadStaff() {
         ArrayList<String> lines = CSVHandler.readLines(STAFF_FILE);
-        for (int i = 0; i < lines.size(); i++) {
+        for (int i = 1; i < lines.size(); i++) {
             Staff s = Staff.fromCSV(lines.get(i));
             if (s != null) staff.put(s.getStaffId(), s);
         }
+        System.out.println("Loaded " + staff.size() + " staff");
     }
 
     private void saveStaff() {
         ArrayList<String> lines = new ArrayList<>();
+        lines.add(" staffId,firstName, lastName,role, department, facilityID, " +
+                "contact, email,employmentStatus, startDate,lineManager,accessLevel");
         ArrayList<Staff> list = new ArrayList<>(staff.values());
         for (int i = 0; i < list.size(); i++) lines.add(list.get(i).toCSV());
         CSVHandler.writeLines(STAFF_FILE, lines);
@@ -205,14 +218,17 @@ public class HCModel {
     // ---------------- Appointments ----------------
     private void loadAppointments() {
         ArrayList<String> lines = CSVHandler.readLines(APPOINTMENTS_FILE);
-        for (int i = 0; i < lines.size(); i++) {
+        for (int i = 1; i < lines.size(); i++) {
             Appointment a = Appointment.fromCSV(lines.get(i));
             if (a != null) appointments.put(a.getAppointmentId(), a);
         }
+        System.out.println("Loaded " + appointments.size() + " appointments");
     }
 
     private void saveAppointments() {
         ArrayList<String> lines = new ArrayList<>();
+        lines.add("appointmentId, patientId, clinicianID, facilityId,appointmentDate, appointmentTime, durationMinutes," +
+                "appointmentType, status, reason_For_Visit, notes, createdDate,  lastModified");
         ArrayList<Appointment> list = new ArrayList<>(appointments.values());
         for (int i = 0; i < list.size(); i++) lines.add(list.get(i).toCSV());
         CSVHandler.writeLines(APPOINTMENTS_FILE, lines);
@@ -250,14 +266,18 @@ public class HCModel {
     // ---------------- Prescriptions ----------------
     private void loadPrescriptions() {
         ArrayList<String> lines = CSVHandler.readLines(PRESCRIPTIONS_FILE);
-        for (int i = 0; i < lines.size(); i++) {
+        for (int i = 1; i < lines.size(); i++) {
             Prescription rx = Prescription.fromCSV(lines.get(i));
             if (rx != null) prescriptions.put(rx.getPrescriptionId(), rx);
         }
+        System.out.println("Loaded " + prescriptions.size() + " prescriptions");
     }
 
     private void savePrescriptions() {
         ArrayList<String> lines = new ArrayList<>();
+        lines.add("prescriptionId, patientId,  clinicianId, appointmentId," +
+                " prescriptionDate, medicationName, dosage, frequency," +
+                "durationDays,  quantity, instruction, pharmacyName,  status, issueDate,  collectionDate");
         ArrayList<Prescription> list = new ArrayList<>(prescriptions.values());
         for (int i = 0; i < list.size(); i++) lines.add(list.get(i).toCSV());
         CSVHandler.writeLines(PRESCRIPTIONS_FILE, lines);
@@ -295,14 +315,18 @@ public class HCModel {
     // ---------------- Referrals ----------------
     private void loadReferrals() {
         ArrayList<String> lines = CSVHandler.readLines(REFERRALS_FILE);
-        for (int i = 0; i < lines.size(); i++) {
+        for (int i = 1; i < lines.size(); i++) {
             Referral r = Referral.fromCSV(lines.get(i));
             if (r != null) referralManager.addReferral(r);
         }
+        System.out.println("Loaded " + referralManager.getAllReferrals().size() + " referrals");
     }
 
     private void saveReferrals() {
         ArrayList<String> lines = new ArrayList<>();
+        lines.add("referralId, patientId,  referringClinicianId,referredToClinicianId, referringFacilityId," +
+                "referringToFacilityId, referralDate, urgencyLevel,  referralReason,  clinicalSummary," +
+                " requestedInvestigation, status,  appointmentId, notes, createdDate,  lastUpdated");
         ArrayList<Referral> list = referralManager.getAllReferrals();
         for (int i = 0; i < list.size(); i++) lines.add(list.get(i).toCSV());
         CSVHandler.writeLines(REFERRALS_FILE, lines);

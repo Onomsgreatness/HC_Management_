@@ -1,36 +1,42 @@
 package view;
 
+import controller.HCController;
 import model.*;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
 /**
  * Swing View for Healthcare System (MVC)
+ * Bookshop-style: view has setController(...) and holds a controller reference.
  */
 public class HCView extends JFrame {
 
-    private controller.HCController controller;
+    private HCController controller;
 
     private JTabbedPane tabbedPane;
 
     // Tables + models
     private JTable patientsTable;
     private DefaultTableModel patientsTM;
+
     private JTable cliniciansTable;
     private DefaultTableModel cliniciansTM;
+
     private JTable appointmentsTable;
     private DefaultTableModel appointmentsTM;
+
     private JTable prescriptionsTable;
     private DefaultTableModel prescriptionsTM;
+
     private JTable referralsTable;
     private DefaultTableModel referralsTM;
-
 
     // Listeners (set by controller)
     private AddPatientListener addPatientListener;
@@ -65,14 +71,21 @@ public class HCView extends JFrame {
         initComponents();
 
         addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing(WindowEvent e) {
                 if (onCloseListener != null) onCloseListener.run();
             }
         });
     }
 
-    public void setController(controller.HCController controller) {
+    /**
+     * Bookshop-style wiring: View holds Controller reference.
+     * IMPORTANT: Your HCApplication calls this AFTER controller is created.
+     */
+    public void setController(HCController controller) {
         this.controller = controller;
+        // You can optionally do view-side initialization here if needed later.
+        // e.g. enable/disable buttons if controller is null etc.
     }
 
     private void initComponents() {
@@ -88,11 +101,15 @@ public class HCView extends JFrame {
 
         JPanel topBar = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JButton refreshAllBtn = new JButton("Refresh All (Reload CSV)");
-        refreshAllBtn.addActionListener(e -> { if (refreshAllListener != null) refreshAllListener.run(); });
+        refreshAllBtn.addActionListener(e -> {
+            if (refreshAllListener != null) refreshAllListener.run();
+        });
         topBar.add(refreshAllBtn);
 
-        JButton saveAllBtn = new JButton("Save All Write CSV");
-        saveAllBtn.addActionListener(e -> {if (saveAllListener != null) saveAllListener.run(); });
+        JButton saveAllBtn = new JButton("Save All (Write CSV)");
+        saveAllBtn.addActionListener(e -> {
+            if (saveAllListener != null) saveAllListener.run();
+        });
         topBar.add(saveAllBtn);
 
         add(topBar, BorderLayout.NORTH);
@@ -105,7 +122,7 @@ public class HCView extends JFrame {
 
         String[] cols = {"PatientID", "FirstName", "LastName", "NHS", "Gender", "Contact", "Email", "GP Surgery"};
         patientsTM = new DefaultTableModel(cols, 0) {
-            public boolean isCellEditable(int r, int c) { return false; }
+            @Override public boolean isCellEditable(int r, int c) { return false; }
         };
         patientsTable = new JTable(patientsTM);
 
@@ -120,16 +137,18 @@ public class HCView extends JFrame {
         edit.addActionListener(e -> showEditPatientDialog());
         del.addActionListener(e -> deleteSelectedRow(patientsTable, deletePatientListener, "patient"));
 
-        btns.add(add); btns.add(edit); btns.add(del);
-        panel.add(btns, BorderLayout.SOUTH);
+        btns.add(add);
+        btns.add(edit);
+        btns.add(del);
 
+        panel.add(btns, BorderLayout.SOUTH);
         return panel;
     }
 
     public void refreshPatientsTable(ArrayList<Patient> patients) {
         patientsTM.setRowCount(0);
         for (Patient p : patients) {
-            Object[] row = {
+            patientsTM.addRow(new Object[]{
                     p.getPatientId(),
                     p.getFirstName(),
                     p.getLastName(),
@@ -138,13 +157,12 @@ public class HCView extends JFrame {
                     p.getContact(),
                     p.getEmail(),
                     p.getGpSurgeryId()
-            };
-            patientsTM.addRow(row);
+            });
         }
     }
 
     private void showAddPatientDialog() {
-        if (controller == null) { showError("Controller not set."); return; }
+        if (controller == null) { showError("Controller not set (call view.setController)."); return; }
 
         JTextField first = new JTextField();
         JTextField last = new JTextField();
@@ -160,7 +178,7 @@ public class HCView extends JFrame {
         JTextField reg = new JTextField("yyyy-MM-dd");
         JTextField gp = new JTextField();
 
-        JPanel p = gridForm(
+        JPanel form = gridForm(
                 "First Name", first,
                 "Last Name", last,
                 "DOB", dob,
@@ -176,12 +194,13 @@ public class HCView extends JFrame {
                 "GP Surgery ID", gp
         );
 
-        int ok = JOptionPane.showConfirmDialog(this, p, "Add Patient", JOptionPane.OK_CANCEL_OPTION);
+        int ok = JOptionPane.showConfirmDialog(this, form, "Add Patient", JOptionPane.OK_CANCEL_OPTION);
         if (ok != JOptionPane.OK_OPTION) return;
 
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             String id = controller.nextPatientId();
+
             Patient patient = new Patient(
                     id,
                     first.getText().trim(),
@@ -220,8 +239,7 @@ public class HCView extends JFrame {
         JTextField email = new JTextField(patientsTable.getValueAt(row, 6).toString());
         JTextField gp = new JTextField(patientsTable.getValueAt(row, 7).toString());
 
-        // Minimal edit dialog (you can expand to include address, dates, etc.)
-        JPanel p = gridForm(
+        JPanel form = gridForm(
                 "First Name", first,
                 "Last Name", last,
                 "NHS Number", nhs,
@@ -231,30 +249,25 @@ public class HCView extends JFrame {
                 "GP Surgery ID", gp
         );
 
-        int ok = JOptionPane.showConfirmDialog(this, p, "Edit Patient " + patientId, JOptionPane.OK_CANCEL_OPTION);
+        int ok = JOptionPane.showConfirmDialog(this, form, "Edit Patient " + patientId, JOptionPane.OK_CANCEL_OPTION);
         if (ok != JOptionPane.OK_OPTION) return;
 
-        try {
-            // We don't have all original fields in table; keep dates etc. unchanged is tricky without model lookup.
-            // Simple approach: ask controller/model to fetch full object? For now, edit only what's visible and reuse defaults.
-            // Better: add a "Get Patient" method in controller. If you want, I can refactor.
-            Patient updated = new Patient(
-                    patientId,
-                    first.getText().trim(),
-                    last.getText().trim(),
-                    new Date(),                 // placeholder if you don't fetch original
-                    nhs.getText().trim(),
-                    gender.getText().trim(),
-                    contact.getText().trim(),
-                    email.getText().trim(),
-                    "", "", "", "", new Date(), gp.getText().trim()
-            );
+        // Minimal edit (keeps other fields blank/placeholder). Better approach: controller fetch full object.
+        Patient updated = new Patient(
+                patientId,
+                first.getText().trim(),
+                last.getText().trim(),
+                new Date(),
+                nhs.getText().trim(),
+                gender.getText().trim(),
+                contact.getText().trim(),
+                email.getText().trim(),
+                "", "", "", "",
+                new Date(),
+                gp.getText().trim()
+        );
 
-            if (updatePatientListener != null) updatePatientListener.onUpdate(patientId, updated);
-
-        } catch (Exception ex) {
-            showError("Invalid input: " + ex.getMessage());
-        }
+        if (updatePatientListener != null) updatePatientListener.onUpdate(patientId, updated);
     }
 
     // ==================== CLINICIANS TAB ====================
@@ -264,7 +277,7 @@ public class HCView extends JFrame {
 
         String[] cols = {"ClinicianID", "FirstName", "LastName", "Title", "Speciality", "GMC", "Contact", "Email", "WorkplaceID", "WorkplaceType"};
         cliniciansTM = new DefaultTableModel(cols, 0) {
-            public boolean isCellEditable(int r, int c) { return false; }
+            @Override public boolean isCellEditable(int r, int c) { return false; }
         };
         cliniciansTable = new JTable(cliniciansTM);
         panel.add(new JScrollPane(cliniciansTable), BorderLayout.CENTER);
@@ -286,7 +299,7 @@ public class HCView extends JFrame {
     public void refreshCliniciansTable(ArrayList<Clinician> clinicians) {
         cliniciansTM.setRowCount(0);
         for (Clinician c : clinicians) {
-            Object[] row = {
+            cliniciansTM.addRow(new Object[]{
                     c.getClinicianId(),
                     c.getFirstName(),
                     c.getLastName(),
@@ -297,13 +310,12 @@ public class HCView extends JFrame {
                     c.getEmail(),
                     c.getWorkplaceId(),
                     c.getWorkplaceType()
-            };
-            cliniciansTM.addRow(row);
+            });
         }
     }
 
     private void showAddClinicianDialog() {
-        if (controller == null) { showError("Controller not set."); return; }
+        if (controller == null) { showError("Controller not set (call view.setController)."); return; }
 
         JTextField first = new JTextField();
         JTextField last = new JTextField();
@@ -317,7 +329,7 @@ public class HCView extends JFrame {
         JComboBox<EmploymentStatus> emp = new JComboBox<>(EmploymentStatus.values());
         JTextField startDate = new JTextField("yyyy-MM-dd");
 
-        JPanel p = gridForm(
+        JPanel form = gridForm(
                 "First Name", first,
                 "Last Name", last,
                 "Title", title,
@@ -331,7 +343,7 @@ public class HCView extends JFrame {
                 "Start Date", startDate
         );
 
-        int ok = JOptionPane.showConfirmDialog(this, p, "Add Clinician", JOptionPane.OK_CANCEL_OPTION);
+        int ok = JOptionPane.showConfirmDialog(this, form, "Add Clinician", JOptionPane.OK_CANCEL_OPTION);
         if (ok != JOptionPane.OK_OPTION) return;
 
         try {
@@ -371,38 +383,33 @@ public class HCView extends JFrame {
         JTextField contact = new JTextField(cliniciansTable.getValueAt(row, 6).toString());
         JTextField email = new JTextField(cliniciansTable.getValueAt(row, 7).toString());
 
-        JPanel p = gridForm(
+        JPanel form = gridForm(
                 "Title", title,
                 "Speciality", speciality,
                 "Contact", contact,
                 "Email", email
         );
 
-        int ok = JOptionPane.showConfirmDialog(this, p, "Edit Clinician " + clinicianId, JOptionPane.OK_CANCEL_OPTION);
+        int ok = JOptionPane.showConfirmDialog(this, form, "Edit Clinician " + clinicianId, JOptionPane.OK_CANCEL_OPTION);
         if (ok != JOptionPane.OK_OPTION) return;
 
-        try {
-            // Minimal update, like Patient edit: best is to fetch original object from model.
-            Clinician updated = new Clinician(
-                    clinicianId,
-                    cliniciansTable.getValueAt(row, 1).toString(),
-                    cliniciansTable.getValueAt(row, 2).toString(),
-                    title.getText().trim(),
-                    speciality.getText().trim(),
-                    Integer.parseInt(cliniciansTable.getValueAt(row, 5).toString()),
-                    contact.getText().trim(),
-                    email.getText().trim(),
-                    cliniciansTable.getValueAt(row, 8).toString(),
-                    cliniciansTable.getValueAt(row, 9).toString(),
-                    EmploymentStatus.FULLTIME,
-                    new Date()
-            );
+        // Minimal update (best is fetch original object from model)
+        Clinician updated = new Clinician(
+                clinicianId,
+                cliniciansTable.getValueAt(row, 1).toString(),
+                cliniciansTable.getValueAt(row, 2).toString(),
+                title.getText().trim(),
+                speciality.getText().trim(),
+                Integer.parseInt(cliniciansTable.getValueAt(row, 5).toString()),
+                contact.getText().trim(),
+                email.getText().trim(),
+                cliniciansTable.getValueAt(row, 8).toString(),
+                cliniciansTable.getValueAt(row, 9).toString(),
+                EmploymentStatus.FULLTIME,
+                new Date()
+        );
 
-            if (updateClinicianListener != null) updateClinicianListener.onUpdate(clinicianId, updated);
-
-        } catch (Exception ex) {
-            showError("Invalid input: " + ex.getMessage());
-        }
+        if (updateClinicianListener != null) updateClinicianListener.onUpdate(clinicianId, updated);
     }
 
     // ==================== APPOINTMENTS TAB ====================
@@ -412,7 +419,7 @@ public class HCView extends JFrame {
 
         String[] cols = {"ApptID", "PatientID", "ClinicianID", "FacilityID", "Date", "Time", "Duration", "Type", "Status", "Reason"};
         appointmentsTM = new DefaultTableModel(cols, 0) {
-            public boolean isCellEditable(int r, int c) { return false; }
+            @Override public boolean isCellEditable(int r, int c) { return false; }
         };
         appointmentsTable = new JTable(appointmentsTM);
         panel.add(new JScrollPane(appointmentsTable), BorderLayout.CENTER);
@@ -428,7 +435,6 @@ public class HCView extends JFrame {
 
         btns.add(add); btns.add(edit); btns.add(del);
         panel.add(btns, BorderLayout.SOUTH);
-
         return panel;
     }
 
@@ -436,7 +442,7 @@ public class HCView extends JFrame {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         appointmentsTM.setRowCount(0);
         for (Appointment a : appts) {
-            Object[] row = {
+            appointmentsTM.addRow(new Object[]{
                     a.getAppointmentId(),
                     a.getPatientId(),
                     a.getClinicianID(),
@@ -447,13 +453,12 @@ public class HCView extends JFrame {
                     a.getAppointmentType(),
                     a.getStatus().name(),
                     a.getReason_For_Visit()
-            };
-            appointmentsTM.addRow(row);
+            });
         }
     }
 
     private void showAddAppointmentDialog() {
-        if (controller == null) { showError("Controller not set."); return; }
+        if (controller == null) { showError("Controller not set (call view.setController)."); return; }
 
         JTextField patientId = new JTextField();
         JTextField clinicianId = new JTextField();
@@ -466,7 +471,7 @@ public class HCView extends JFrame {
         JTextField reason = new JTextField();
         JTextField notes = new JTextField();
 
-        JPanel p = gridForm(
+        JPanel form = gridForm(
                 "Patient ID", patientId,
                 "Clinician ID", clinicianId,
                 "Facility ID", facilityId,
@@ -479,13 +484,14 @@ public class HCView extends JFrame {
                 "Notes", notes
         );
 
-        int ok = JOptionPane.showConfirmDialog(this, p, "Add Appointment", JOptionPane.OK_CANCEL_OPTION);
+        int ok = JOptionPane.showConfirmDialog(this, form, "Add Appointment", JOptionPane.OK_CANCEL_OPTION);
         if (ok != JOptionPane.OK_OPTION) return;
 
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             String id = controller.nextAppointmentId();
             Date now = new Date();
+
             Appointment a = new Appointment(
                     id,
                     patientId.getText().trim(),
@@ -516,36 +522,30 @@ public class HCView extends JFrame {
         JTextField status = new JTextField(appointmentsTable.getValueAt(row, 8).toString());
         JTextField reason = new JTextField(appointmentsTable.getValueAt(row, 9).toString());
 
-        JPanel p = gridForm(
+        JPanel form = gridForm(
                 "Status (SCHEDULED/CANCELLED)", status,
                 "Reason", reason
         );
 
-        int ok = JOptionPane.showConfirmDialog(this, p, "Edit Appointment " + apptId, JOptionPane.OK_CANCEL_OPTION);
+        int ok = JOptionPane.showConfirmDialog(this, form, "Edit Appointment " + apptId, JOptionPane.OK_CANCEL_OPTION);
         if (ok != JOptionPane.OK_OPTION) return;
 
-        try {
-            // Again minimal update without full model fetch.
-            Appointment updated = new Appointment(
-                    apptId,
-                    appointmentsTable.getValueAt(row, 1).toString(),
-                    appointmentsTable.getValueAt(row, 2).toString(),
-                    appointmentsTable.getValueAt(row, 3).toString(),
-                    new Date(),
-                    appointmentsTable.getValueAt(row, 5).toString(),
-                    Integer.parseInt(appointmentsTable.getValueAt(row, 6).toString()),
-                    appointmentsTable.getValueAt(row, 7).toString(),
-                    StatusType.valueOf(status.getText().trim()),
-                    reason.getText().trim(),
-                    "",
-                    new Date(), new Date()
-            );
+        Appointment updated = new Appointment(
+                apptId,
+                appointmentsTable.getValueAt(row, 1).toString(),
+                appointmentsTable.getValueAt(row, 2).toString(),
+                appointmentsTable.getValueAt(row, 3).toString(),
+                new Date(),
+                appointmentsTable.getValueAt(row, 5).toString(),
+                Integer.parseInt(appointmentsTable.getValueAt(row, 6).toString()),
+                appointmentsTable.getValueAt(row, 7).toString(),
+                StatusType.valueOf(status.getText().trim()),
+                reason.getText().trim(),
+                "",
+                new Date(), new Date()
+        );
 
-            if (updateAppointmentListener != null) updateAppointmentListener.onUpdate(apptId, updated);
-
-        } catch (Exception ex) {
-            showError("Invalid input: " + ex.getMessage());
-        }
+        if (updateAppointmentListener != null) updateAppointmentListener.onUpdate(apptId, updated);
     }
 
     // ==================== PRESCRIPTIONS TAB ====================
@@ -555,7 +555,7 @@ public class HCView extends JFrame {
 
         String[] cols = {"RXID", "PatientID", "ClinicianID", "ApptID", "Medication", "Dosage", "Frequency", "Days", "Pharmacy", "Status"};
         prescriptionsTM = new DefaultTableModel(cols, 0) {
-            public boolean isCellEditable(int r, int c) { return false; }
+            @Override public boolean isCellEditable(int r, int c) { return false; }
         };
         prescriptionsTable = new JTable(prescriptionsTM);
         panel.add(new JScrollPane(prescriptionsTable), BorderLayout.CENTER);
@@ -577,7 +577,7 @@ public class HCView extends JFrame {
     public void refreshPrescriptionsTable(ArrayList<Prescription> rxList) {
         prescriptionsTM.setRowCount(0);
         for (Prescription rx : rxList) {
-            Object[] row = {
+            prescriptionsTM.addRow(new Object[]{
                     rx.getPrescriptionId(),
                     rx.getPatientId(),
                     rx.getClinicianId(),
@@ -588,18 +588,17 @@ public class HCView extends JFrame {
                     rx.getDurationDays(),
                     rx.getPharmacyName(),
                     rx.getStatus()
-            };
-            prescriptionsTM.addRow(row);
+            });
         }
     }
 
     private void showAddPrescriptionDialog() {
-        if (controller == null) { showError("Controller not set."); return; }
+        if (controller == null) { showError("Controller not set (call view.setController)."); return; }
 
         JTextField patientId = new JTextField();
         JTextField clinicianId = new JTextField();
         JTextField appointmentId = new JTextField();
-        JTextField date = new JTextField("dd/MM/yyyy");
+        JTextField date = new JTextField("yyyy-MM-dd");
         JTextField medication = new JTextField();
         JTextField dosage = new JTextField();
         JTextField frequency = new JTextField();
@@ -610,11 +609,11 @@ public class HCView extends JFrame {
         JTextField status = new JTextField("ISSUED");
         JCheckBox generateDoc = new JCheckBox("Generate prescription text file", true);
 
-        JPanel p = gridForm(
+        JPanel form = gridForm(
                 "Patient ID", patientId,
                 "Clinician ID", clinicianId,
                 "Appointment ID", appointmentId,
-                "Prescription Date", date,
+                "Prescription Date (yyyy-MM-dd)", date,
                 "Medication", medication,
                 "Dosage", dosage,
                 "Frequency", frequency,
@@ -626,11 +625,11 @@ public class HCView extends JFrame {
                 "Document", generateDoc
         );
 
-        int ok = JOptionPane.showConfirmDialog(this, p, "Add Prescription", JOptionPane.OK_CANCEL_OPTION);
+        int ok = JOptionPane.showConfirmDialog(this, form, "Add Prescription", JOptionPane.OK_CANCEL_OPTION);
         if (ok != JOptionPane.OK_OPTION) return;
 
         try {
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             String id = controller.nextPrescriptionId();
             Date d = sdf.parse(date.getText().trim());
 
@@ -668,33 +667,29 @@ public class HCView extends JFrame {
         String rxId = prescriptionsTable.getValueAt(row, 0).toString();
         JTextField status = new JTextField(prescriptionsTable.getValueAt(row, 9).toString());
 
-        JPanel p = gridForm("Status", status);
+        JPanel form = gridForm("Status", status);
 
-        int ok = JOptionPane.showConfirmDialog(this, p, "Edit Prescription " + rxId, JOptionPane.OK_CANCEL_OPTION);
+        int ok = JOptionPane.showConfirmDialog(this, form, "Edit Prescription " + rxId, JOptionPane.OK_CANCEL_OPTION);
         if (ok != JOptionPane.OK_OPTION) return;
 
-        try {
-            // minimal update: only status
-            Prescription updated = new Prescription(
-                    rxId,
-                    prescriptionsTable.getValueAt(row, 1).toString(),
-                    prescriptionsTable.getValueAt(row, 2).toString(),
-                    prescriptionsTable.getValueAt(row, 3).toString(),
-                    new Date(),
-                    prescriptionsTable.getValueAt(row, 4).toString(),
-                    prescriptionsTable.getValueAt(row, 5).toString(),
-                    prescriptionsTable.getValueAt(row, 6).toString(),
-                    Integer.parseInt(prescriptionsTable.getValueAt(row, 7).toString()),
-                    "", "", prescriptionsTable.getValueAt(row, 8).toString(),
-                    status.getText().trim(),
-                    new Date(), new Date()
-            );
+        Prescription updated = new Prescription(
+                rxId,
+                prescriptionsTable.getValueAt(row, 1).toString(),
+                prescriptionsTable.getValueAt(row, 2).toString(),
+                prescriptionsTable.getValueAt(row, 3).toString(),
+                new Date(),
+                prescriptionsTable.getValueAt(row, 4).toString(),
+                prescriptionsTable.getValueAt(row, 5).toString(),
+                prescriptionsTable.getValueAt(row, 6).toString(),
+                Integer.parseInt(prescriptionsTable.getValueAt(row, 7).toString()),
+                "",
+                "",
+                prescriptionsTable.getValueAt(row, 8).toString(),
+                status.getText().trim(),
+                new Date(), new Date()
+        );
 
-            if (updatePrescriptionListener != null) updatePrescriptionListener.onUpdate(rxId, updated);
-
-        } catch (Exception ex) {
-            showError("Invalid input: " + ex.getMessage());
-        }
+        if (updatePrescriptionListener != null) updatePrescriptionListener.onUpdate(rxId, updated);
     }
 
     // ==================== REFERRALS TAB ====================
@@ -704,7 +699,7 @@ public class HCView extends JFrame {
 
         String[] cols = {"ReferralID", "PatientID", "FromClinician", "ToClinician", "FromFacility", "ToFacility", "Date", "Urgency", "Status"};
         referralsTM = new DefaultTableModel(cols, 0) {
-            public boolean isCellEditable(int r, int c) { return false; }
+            @Override public boolean isCellEditable(int r, int c) { return false; }
         };
         referralsTable = new JTable(referralsTM);
         panel.add(new JScrollPane(referralsTable), BorderLayout.CENTER);
@@ -716,9 +711,10 @@ public class HCView extends JFrame {
         create.addActionListener(e -> showCreateReferralDialog());
         status.addActionListener(e -> showUpdateReferralStatusDialog());
 
-        btns.add(create); btns.add(status);
-        panel.add(btns, BorderLayout.SOUTH);
+        btns.add(create);
+        btns.add(status);
 
+        panel.add(btns, BorderLayout.SOUTH);
         return panel;
     }
 
@@ -726,7 +722,7 @@ public class HCView extends JFrame {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         referralsTM.setRowCount(0);
         for (Referral r : refs) {
-            Object[] row = {
+            referralsTM.addRow(new Object[]{
                     r.getReferralId(),
                     r.getPatientId(),
                     r.getReferringClinicianId(),
@@ -736,13 +732,12 @@ public class HCView extends JFrame {
                     sdf.format(r.getReferralDate()),
                     r.getUrgencyLevel(),
                     r.getStatus().name()
-            };
-            referralsTM.addRow(row);
+            });
         }
     }
 
     private void showCreateReferralDialog() {
-        if (controller == null) { showError("Controller not set."); return; }
+        if (controller == null) { showError("Controller not set (call view.setController)."); return; }
 
         JTextField patientId = new JTextField();
         JTextField fromClinician = new JTextField();
@@ -758,7 +753,7 @@ public class HCView extends JFrame {
         JTextField notes = new JTextField();
         JCheckBox generateDoc = new JCheckBox("Generate referral email text file", true);
 
-        JPanel p = new JPanel(new GridLayout(0, 2, 8, 8));
+        JPanel p = new JPanel(new GridLayout(0, 2, 1, 1));
         p.add(new JLabel("Patient ID")); p.add(patientId);
         p.add(new JLabel("Referring Clinician ID")); p.add(fromClinician);
         p.add(new JLabel("Referred-to Clinician ID")); p.add(toClinician);
@@ -814,8 +809,8 @@ public class HCView extends JFrame {
         String referralId = referralsTable.getValueAt(row, 0).toString();
         JComboBox<ReferralStatus> status = new JComboBox<>(ReferralStatus.values());
 
-        JPanel p = gridForm("New Status", status);
-        int ok = JOptionPane.showConfirmDialog(this, p, "Update Status for " + referralId, JOptionPane.OK_CANCEL_OPTION);
+        JPanel form = gridForm("New Status", status);
+        int ok = JOptionPane.showConfirmDialog(this, form, "Update Status for " + referralId, JOptionPane.OK_CANCEL_OPTION);
         if (ok != JOptionPane.OK_OPTION) return;
 
         if (updateReferralStatusListener != null) {
@@ -845,7 +840,7 @@ public class HCView extends JFrame {
         return p;
     }
 
-    // ==================== App messages ====================
+    // ==================== Messages ====================
 
     public void showSuccess(String msg) {
         JOptionPane.showMessageDialog(this, msg, "Success", JOptionPane.INFORMATION_MESSAGE);
@@ -855,7 +850,7 @@ public class HCView extends JFrame {
         JOptionPane.showMessageDialog(this, msg, "Error", JOptionPane.ERROR_MESSAGE);
     }
 
-    // ==================== Listener setter methods ====================
+    // ==================== Listener setters ====================
 
     public void setAddPatientListener(AddPatientListener l) { this.addPatientListener = l; }
     public void setUpdatePatientListener(UpdatePatientListener l) { this.updatePatientListener = l; }
@@ -881,6 +876,7 @@ public class HCView extends JFrame {
     public void setSaveAllListener(Runnable r) { this.saveAllListener = r; }
 
     // ==================== Listener Interfaces ====================
+
     public interface DeleteListener { void onDelete(String id); }
 
     public interface AddPatientListener { void onAdd(Patient p); }

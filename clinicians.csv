@@ -1,2 +1,10 @@
-C001,Alice,Smith,Dr,General Practice,1234567,07000000000,alice@nhs.uk,S001,Surgery,Full-Time,2021-02-01
-C010,Clara,Ng,Dr,Cardiology,9991112,07000000002,clara@nhs.uk,H001,Hospital,Full-Time,2019-06-01
+clinicianId, firstName, lastName, title,speciality, gmcNumber,contact, email,workplaceId, workplaceType, employmentStatus, startDate
+C002,Dr. Helen,Roberts,GP,General Practice,7654322,07111222334,h.roberts@birminghamgp.nhs.uk,S001,GP Surgery,Part-Time,2019-09-15
+C001,Dr. David,Thompson,GP,General Practice,7654321,07111222333,d.thompson@birminghamgp.nhs.uk,S001,GP Surgery,Full-Time,2018-04-01
+C012,Dr. Paul,Harris,Consultant,Gastroenterology,7654329,07111222344,p.harris@queenshospital.nhs.uk,H002,Hospital,Full-Time,2017-12-03
+C008,Dr. Jennifer,Lee,Consultant,Dermatology,7654328,07111222340,j.lee@birminghamhospital.nhs.uk,H003,Hospital,Part-Time,2021-06-01
+C007,Dr. Andrew,White,Consultant,Orthopaedics,7654327,07111222339,a.white@queenshospital.nhs.uk,H002,Hospital,Full-Time,2019-03-18
+C006,Dr. Maria,Rodriguez,Consultant,Neurology,7654326,07111222338,m.rodriguez@heartlandshospital.nhs.uk,H001,Hospital,Full-Time,2016-11-05
+C005,Dr. Richard,Evans,Consultant,Cardiology,7654325,07111222337,r.evans@heartlandshospital.nhs.uk,H001,Hospital,Full-Time,2015-08-12
+C004,Dr. Susan,Clarke,GP,General Practice,7654324,07111222336,s.clarke@suttongp.nhs.uk,S003,GP Surgery,Full-Time,2020-01-10
+C003,Dr. Mark,Davies,GP,General Practice,7654323,07111222335,m.davies@solihullgp.nhs.uk,S002,GP Surgery,Full-Time,2017-02-20
