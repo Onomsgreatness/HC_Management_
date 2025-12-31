@@ -1,6 +1,15 @@
+/**
+ * Author: Onome Abuku <oa22aed@herts.ac.uk>
+ *     ID: 21092431
+ *     References: Dr. John Kanyaru, BookShop Example.
+ */
+
 package model;
 
-import java.text.SimpleDateFormat;
+import CSV.CSVHandler;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class Facility {
     private String facilityId;
@@ -122,14 +131,23 @@ public class Facility {
     }
 
     public String toCSV() {
-        return facilityId + "," + facilityName + "," + facilityType + "," + address + "," + postCode + ","
-                + contact + "," + email + "," + openingHours + "," + managerName + "," + capacity + "," + specialitiesOffered;
+        List<String> fields = Arrays.asList(
+                facilityId, facilityName, facilityType, address ,postCode ,
+                contact, email,openingHours,managerName,capacity ,specialitiesOffered
+        );
+        return CSVHandler.toLine(fields);
     }
 
     public static Facility fromCSV(String csvLine) {
-        String[] parts = csvLine.split(",");
-        return new Facility(parts[0], parts[1], parts[2], parts[3], parts[4], parts[5], parts[6], parts[7],
-                parts[8], parts[9], parts[10]);
+        try {
+            List<String> parts = CSVHandler.parseLine(csvLine);
+            if (parts.size() < 11) return null;
+            return new Facility(parts.get(0), parts.get(1), parts.get(2), parts.get(3), parts.get(4), parts.get(5),
+                    parts.get(6), parts.get(7), parts.get(8), parts.get(9), parts.get(10));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
 
     }
     @Override

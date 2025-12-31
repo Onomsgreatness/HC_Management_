@@ -14,7 +14,8 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 
-public class Clinician extends Worker {
+public class
+Clinician extends Worker {
     private String clinicianId;
     private String title;
     private String speciality;

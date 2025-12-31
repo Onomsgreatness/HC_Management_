@@ -1,3 +1,9 @@
+/**
+ * Author: Onome Abuku <oa22aed@herts.ac.uk>
+ *     ID: 21092431
+ *     References: Dr. John Kanyaru, BookShop Example.
+ */
+
 package model;
 
 public enum EmploymentStatus {
@@ -9,6 +15,10 @@ public enum EmploymentStatus {
     EmploymentStatus (String status) { this.status = status; }
 
     public String getStatus(){
+        return status;
+    }
+
+    public String toCSV() {
         return status;
     }
 
@@ -34,7 +44,7 @@ public enum EmploymentStatus {
 
     @Override
     public String toString(){
-        return "Employment Status: " + status;
+        return status;
     }
 
 }
