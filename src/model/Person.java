@@ -1,7 +1,10 @@
-package model;
+/**
+ * Author: Onome Abuku <oa22aed@herts.ac.uk>
+ *     ID: 21092431
+ *     References: Dr. John Kanyaru, BookShop Example.
+ */
 
-import java.util.Date;
-import java.text.SimpleDateFormat;
+package model;
 
 public abstract class Person {
     private String firstName;

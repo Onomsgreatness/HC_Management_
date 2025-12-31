@@ -1,7 +1,17 @@
+/**
+ * Author: Onome Abuku <oa22aed@herts.ac.uk>
+ *     ID: 21092431
+ *     References: Dr. John Kanyaru, BookShop Example.
+ */
+
 package model;
 
+import CSV.CSVHandler;
+
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 public class Patient extends Person{
     private String patientId;
@@ -31,12 +41,20 @@ public class Patient extends Person{
         this.gpSurgeryId = gpSurgeryId;
     }
 
-    public String getPatientId(){
+    public String getPatientId() {
         return patientId;
     }
 
-    public void setPatientId(String id){
-        this.patientId = id;
+    public void setPatientId(String patientId) {
+        this.patientId = patientId;
+    }
+
+    public Date getDoB() {
+        return DoB;
+    }
+
+    public void setDoB(Date doB) {
+        DoB = doB;
     }
 
     public String getNhsNumber() {
@@ -105,23 +123,28 @@ public class Patient extends Person{
 
     public String toCSV() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        return patientId + "," + getFirstName() + "," + getLastName() + "," + sdf.format(DoB) + "," + nhsNumber
-                + "," + gender + "," + getContact() + ","  + getEmail() + "," + address + ","
-                + postCode + "," + emergencyContactName + "," + emergencyContact + ","
-                + sdf.format(registrationDate) + "," + gpSurgeryId;
+
+        List<String> fields = Arrays.asList(
+                patientId ,getFirstName(), getLastName() ,sdf.format(DoB), nhsNumber,
+                gender, getContact() ,getEmail() ,address ,postCode ,emergencyContactName,
+                emergencyContact ,sdf.format(registrationDate) ,gpSurgeryId
+        );
+        return CSVHandler.toLine(fields);
     }
 
     public static Patient fromCSV(String csvLine) {
         try{
-            String[] parts = csvLine.split(",");
+            List<String> parts = CSVHandler.parseLine(csvLine);
+            if (parts.size() < 14) return null;
+
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            Date date = sdf.parse(parts[3]);
-            Date date1 = sdf.parse(parts[12]);
+            Date date = sdf.parse(parts.get(3));
+            Date date1 = sdf.parse(parts.get(12));
             return new Patient(
-                    parts[0], parts[1], parts[2], date,
-                    parts[4], parts[5], parts[6], parts[7],
-                    parts[8], parts[9], parts[10], parts[11],
-                    date1, parts[13]
+                    parts.get(0), parts.get(1), parts.get(2), date,
+                    parts.get(4), parts.get(5), parts.get(6), parts.get(7),
+                    parts.get(8), parts.get(9), parts.get(10), parts.get(11),
+                    date1, parts.get(13)
             );
         } catch (Exception e){
             e.printStackTrace();
@@ -134,8 +157,8 @@ public class Patient extends Person{
     @Override
     public String toString() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        return  "Patient {"
-                + "Patient Id: " + patientId + "\n"
+        return  "model.Patient {"
+                + "model.Patient Id: " + patientId + "\n"
                 + super.toString() + "\n"
                 + "NHS Number: " + nhsNumber + "\n"
                 + "Gender: " + gender + "\n"
