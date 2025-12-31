@@ -1,3 +1,9 @@
+/**
+ * Author: Onome Abuku <oa22aed@herts.ac.uk>
+ *     ID: 21092431
+ *     References: Dr. John Kanyaru, BookShop Example.
+ */
+
 package model;
 
 import java.util.Date;
@@ -30,11 +36,15 @@ public abstract class Worker extends Person {
         this.startDate = startDate;
     }
 
+    private static String formatDate(SimpleDateFormat sdf, Date date) {
+        return date == null ? "" : sdf.format(date);
+    }
+
     @Override
     public String toString() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        return super.toString() +  "\n"
-            + "employmentStatus: " + employmentStatus +  "\n" +
-                " startDate: " + sdf.format(startDate);
+        return super.toString() + "\n"
+                + "employmentStatus: " + (employmentStatus == null ? "" : employmentStatus.toString()) + "\n"
+                + "startDate: " + formatDate(sdf, startDate);
     }
 }
