@@ -1,3 +1,9 @@
+/**
+ * Author: Onome Abuku <oa22aed@herts.ac.uk>
+ *     ID: 21092431
+ *     References: Dr. John Kanyaru, BookShop Example.
+ */
+
 package model;
 
 public enum ReferralStatus {
@@ -6,10 +12,14 @@ public enum ReferralStatus {
     INPROGRESS("In Progress"),
     NEW("New");
 
-    private String status;
+    private final String status;
 
     ReferralStatus(String status){
         this.status = status;
+    }
+
+    public String toCSV() {
+        return status;
     }
 
     public static ReferralStatus fromCSV(String value) {
@@ -33,11 +43,11 @@ public enum ReferralStatus {
         if (part.equals("NEW"))
             return NEW;
 
-        throw new IllegalArgumentException("Unknown EmploymentStatus: " + value);
+        throw new IllegalArgumentException("Unknown ReferralStatus: " + value);
     }
 
     @Override
     public String toString(){
-        return "Referral Status: " + status;
+        return status;
     }
 }

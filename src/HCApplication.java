@@ -1,3 +1,9 @@
+/**
+ * Author: Onome Abuku <oa22aed@herts.ac.uk>
+ *     ID: 21092431
+ *     References: Dr. John Kanyaru, BookShop Example.
+ */
+
 import javax.swing.SwingUtilities;
 
 import controller.HCController;

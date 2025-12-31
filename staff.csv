@@ -1,4 +1,3 @@
- staffId,firstName, lastName,role, department, facilityID, contact, email,employmentStatus, startDate,lineManager,accessLevel
 ST009,Robert,Anderson,Receptionist,Front Desk,S003,07111333452,r.anderson@suttongp.nhs.uk,Full-Time,2021-04-07,Margaret Taylor,Basic
 ST001,Michelle,Adams,Practice Manager,Administration,S001,07111333444,m.adams@birminghamgp.nhs.uk,Full-Time,2019-03-01,Dr. David Thompson,Manager
 ST012,Julie,Roberts,Ward Clerk,Administration,H001,07111333455,j.roberts@heartlandshospital.nhs.uk,Full-Time,2019-06-22,David Thompson,Standard
