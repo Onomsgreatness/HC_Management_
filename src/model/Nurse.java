@@ -1,12 +1,17 @@
+/**
+ * Author: Onome Abuku <oa22aed@herts.ac.uk>
+ *     ID: 21092431
+ *     References: Dr. John Kanyaru, BookShop Example.
+ */
+
 package model;
 
 import java.util.Date;
-import java.text.SimpleDateFormat;
 
 public class Nurse extends Clinician {
     private String qualification;
 
-    public Nurse(String clinicianId, String title, String speciality, int gmcNumber, String workplaceId,
+    public Nurse(String clinicianId, String title, String speciality, String gmcNumber, String workplaceId,
                  String workplaceType, String firstName, String lastName, String email, String contact,
                  EmploymentStatus employmentStatus, Date startDate, String qualification){
         super(clinicianId, firstName, lastName, title, speciality,
@@ -19,7 +24,7 @@ public class Nurse extends Clinician {
         return qualification;
     }
 
-    public void setQualification(){
+    public void setQualification(String qualification){
         this.qualification = qualification;
     }
 
