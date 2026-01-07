@@ -34,6 +34,7 @@ public class HCView extends JFrame {
     private DeleteListener deletePatientListener;
 
     private ClinicianListener addClinicianListener;
+    private EditClinicianListener editClinicianListener;
     private DeleteListener deleteClinicianListener;
 
     private AppointmentListener addAppointmentListener;
@@ -326,12 +327,14 @@ public class HCView extends JFrame {
 
         JPanel btns = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JButton add = new JButton("Add");
+        JButton edit = new JButton("Edit");
         JButton del = new JButton("Delete");
 
         add.addActionListener(e -> showAddClinicianDialog());
+        edit.addActionListener(e -> showEditClinicianDialog());
         del.addActionListener(e -> deleteSelected(cliniciansTable, deleteClinicianListener, "clinician"));
 
-        btns.add(add); btns.add(del);
+        btns.add(add); btns.add(edit); btns.add(del);
         panel.add(btns, BorderLayout.SOUTH);
 
         return panel;
@@ -411,6 +414,77 @@ public class HCView extends JFrame {
             showErrorMessage("Invalid date. Use yyyy-MM-dd");
         }
     }
+
+    private void showEditClinicianDialog() {
+        if (editClinicianListener == null) { showErrorMessage("Clinician edit handler not set."); return; }
+        int row = cliniciansTable.getSelectedRow();
+        if (row < 0) { showErrorMessage("Select a clinician row first."); return; }
+
+        String clinicianId = cliniciansTable.getValueAt(row, 0).toString();
+
+        JTextField first = new JTextField(cliniciansTable.getValueAt(row, 1).toString());
+        JTextField last = new JTextField(cliniciansTable.getValueAt(row, 2).toString());
+        JTextField title = new JTextField(cliniciansTable.getValueAt(row, 3).toString());
+        JTextField speciality = new JTextField(cliniciansTable.getValueAt(row, 4).toString());
+        JTextField gmc = new JTextField(cliniciansTable.getValueAt(row, 5).toString());
+        JTextField contact = new JTextField(cliniciansTable.getValueAt(row, 6).toString());
+        JTextField email = new JTextField(cliniciansTable.getValueAt(row, 7).toString());
+        JTextField workplaceId = new JTextField(cliniciansTable.getValueAt(row, 8).toString());
+        JTextField workplaceType = new JTextField(cliniciansTable.getValueAt(row, 9).toString());
+
+        // Employment status (column 10)
+        EmploymentStatus currentStatus = null;
+        try {
+            Object v = cliniciansTable.getValueAt(row, 10);
+            if (v != null) currentStatus = EmploymentStatus.valueOf(v.toString());
+        } catch (Exception ignored) {}
+
+        JComboBox<EmploymentStatus> emp = new JComboBox<>(EmploymentStatus.values());
+        if (currentStatus != null) emp.setSelectedItem(currentStatus);
+
+        // Start date (column 11) is a String in your table (yyyy-MM-dd)
+        JTextField start = new JTextField(cliniciansTable.getValueAt(row, 11).toString());
+
+        JPanel form = formGrid(
+                "Clinician ID", new JLabel(clinicianId),
+                "First Name", first,
+                "Last Name", last,
+                "Title", title,
+                "Speciality", speciality,
+                "GMC Number", gmc,
+                "Contact", contact,
+                "Email", email,
+                "Workplace ID", workplaceId,
+                "Workplace Type", workplaceType,
+                "Employment Status", emp,
+                "Start Date (yyyy-MM-dd)", start
+        );
+
+        int ok = JOptionPane.showConfirmDialog(this, form, "Edit Clinician", JOptionPane.OK_CANCEL_OPTION);
+        if (ok != JOptionPane.OK_OPTION) return;
+
+        try {
+            Date startDate = parseDate(start.getText().trim());
+
+            editClinicianListener.onEditClinician(
+                    clinicianId,
+                    first.getText().trim(),
+                    last.getText().trim(),
+                    title.getText().trim(),
+                    speciality.getText().trim(),
+                    gmc.getText().trim(),
+                    contact.getText().trim(),
+                    email.getText().trim(),
+                    workplaceId.getText().trim(),
+                    workplaceType.getText().trim(),
+                    (EmploymentStatus) emp.getSelectedItem(),
+                    startDate
+            );
+        } catch (Exception ex) {
+            showErrorMessage("Invalid start date. Use yyyy-MM-dd");
+        }
+    }
+
 
     // ========================= APPOINTMENTS TAB =========================
 
@@ -713,6 +787,7 @@ public class HCView extends JFrame {
     public void setDeletePatientListener(DeleteListener l) { this.deletePatientListener = l; }
 
     public void setAddClinicianListener(ClinicianListener l) { this.addClinicianListener = l; }
+    public void setEditClinicianListener(EditClinicianListener l) { this.editClinicianListener = l; }
     public void setDeleteClinicianListener(DeleteListener l) { this.deleteClinicianListener = l; }
 
     public void setAddAppointmentListener(AppointmentListener l) { this.addAppointmentListener = l; }

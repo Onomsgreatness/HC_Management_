@@ -84,6 +84,16 @@ public class HCController {
             }
         });
 
+        view.setEditClinicianListener(new EditClinicianListener() {
+            public void onEditClinician(String clinicianId, String firstName, String lastName, String title,
+                                        String speciality, String gmcNumber, String contact, String email,
+                                        String workplaceId, String workplaceType,
+                                        EmploymentStatus employmentStatus, Date startDate) {
+                    handleEditClinician(clinicianId, firstName, lastName, title, speciality, gmcNumber,
+                            contact, email, workplaceId, workplaceType, employmentStatus, startDate);
+            }
+        });
+
         view.setDeleteClinicianListener(new DeleteListener() {
             public void onDelete(String id) {
                 handleDeleteClinician(id);
@@ -292,6 +302,22 @@ public class HCController {
         model.addClinician(clinician);
         view.showSuccessMessage("Clinician added successfully!");
         handleRefreshClinicians();
+    }
+
+    private void handleEditClinician(String clinicianId, String firstName, String lastName, String title,
+                                     String speciality,
+                                     String gmcNumber, String contact, String email, String workplaceId,
+                                     String workplaceType, EmploymentStatus employmentStatus, Date startDate) {
+        Clinician clinician = model.getClinician(clinicianId);
+        if (clinician != null) {
+            Date start = clinician.getStartDate();
+            Clinician updatedClinician = new Clinician(clinicianId, firstName, lastName, title, speciality,
+                    gmcNumber, contact, email, workplaceId, workplaceType,
+                    employmentStatus, startDate);
+            model.updateClinician(updatedClinician);
+            view.showSuccessMessage("Clinician updated successfully!");
+            handleRefreshClinicians();
+        }
     }
 
     private void handleDeleteClinician(String clinicianId) {
