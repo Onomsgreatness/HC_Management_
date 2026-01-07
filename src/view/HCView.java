@@ -1,7 +1,6 @@
 /**
  * Author: Onome Abuku <oa22aed@herts.ac.uk>
  *     ID: 21092431
- *     References: Dr. John Kanyaru, BookShop Example.
  */
 
 package view;
@@ -43,6 +42,7 @@ public class HCView extends JFrame {
     private DeleteListener deleteAppointmentListener;
 
     private PrescriptionListener addPrescriptionListener;
+    private EditPrescriptionListener editPrescriptionListener;
     private GenerateDocumentListener generatePrescriptionDocumentListener;
     private DeleteListener deletePrescriptionListener;
 
@@ -853,6 +853,7 @@ public class HCView extends JFrame {
     public void setDeleteAppointmentListener(DeleteListener l) { this.deleteAppointmentListener = l; }
 
     public void setAddPrescriptionListener(PrescriptionListener l) { this.addPrescriptionListener = l; }
+    public void setEditPrescriptionListener(EditPrescriptionListener l) { this.editPrescriptionListener = l; }
     public void setGeneratePrescriptionDocumentListener(GenerateDocumentListener l) { this.generatePrescriptionDocumentListener = l; }
     public void setDeletePrescriptionListener(DeleteListener l) { this.deletePrescriptionListener = l; }
 
