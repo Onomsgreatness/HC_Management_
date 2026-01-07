@@ -117,6 +117,17 @@ public class HCController {
             }
         });
 
+        view.setEditAppointmentListener(new EditAppointmentListener() {
+            public void onEditAppointment(String appointmentId, String patientId, String clinicianId, String facilityId, Date appointmentDate,
+                                          String appointmentTime, int durationMinutes, String appointmentType,
+                                          String reasonForVisit, String notes) {
+                handleEditAppointment(appointmentId, patientId,clinicianId, facilityId, appointmentDate,
+                        appointmentTime, durationMinutes, appointmentType,
+                        reasonForVisit, notes);
+
+            }
+        });
+
         view.setUpdateAppointmentStatusListener(new UpdateStatusListener() {
             public void onUpdateStatus(String id, String status) {
                 handleUpdateAppointmentStatus(id, status);
@@ -346,6 +357,41 @@ public class HCController {
                 notes, createdDate, lastModified);
         model.addAppointment(appointment);
         view.showSuccessMessage("Appointment added successfully!");
+        handleRefreshAppointments();
+    }
+
+    private void handleEditAppointment(String appointmentId, String patientId, String clinicianId, String facilityId,
+                                       Date appointmentDate, String appointmentTime, int durationMinutes,
+                                       String appointmentType, String reasonForVisit, String notes) {
+
+        Appointment existing = model.getAppointment(appointmentId);
+        if (existing == null) {
+            view.showErrorMessage("Appointment not found: " + appointmentId);
+            return;
+        }
+
+        Date createdDate = existing.getCreatedDate();
+        Date lastModified = new Date();
+
+        Appointment updated = new Appointment(
+                appointmentId,
+                patientId,
+                clinicianId,
+                facilityId,
+                appointmentDate,
+                appointmentTime,
+                durationMinutes,
+                appointmentType,
+                existing.getStatus(),
+                reasonForVisit,
+                notes,
+                createdDate,
+                lastModified
+
+        );
+
+        model.updateAppointment(updated);
+        view.showSuccessMessage("Appointment updated successfully!");
         handleRefreshAppointments();
     }
 

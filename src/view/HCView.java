@@ -38,6 +38,7 @@ public class HCView extends JFrame {
     private DeleteListener deleteClinicianListener;
 
     private AppointmentListener addAppointmentListener;
+    private EditAppointmentListener editAppointmentListener;
     private UpdateStatusListener updateAppointmentStatusListener;
     private DeleteListener deleteAppointmentListener;
 
@@ -502,15 +503,15 @@ public class HCView extends JFrame {
         JPanel btns = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JButton add = new JButton("Add");
         JButton updateStatus = new JButton("Update Status");
-        //JButton edit = new JButton("Edit");
+        JButton edit = new JButton("Edit");
         JButton del = new JButton("Delete");
 
         add.addActionListener(e -> showAddAppointmentDialog());
         updateStatus.addActionListener(e -> showUpdateAppointmentStatusDialog());
-        //edit.addActionListener(e -> showEdit);
+        edit.addActionListener(e -> showEditAppointmentDialog());
         del.addActionListener(e -> deleteSelected(appointmentsTable, deleteAppointmentListener, "appointment"));
 
-        btns.add(add); btns.add(updateStatus); btns.add(del);
+        btns.add(add); btns.add(edit); btns.add(updateStatus); btns.add(del);
         panel.add(btns, BorderLayout.SOUTH);
 
         return panel;
@@ -594,6 +595,62 @@ public class HCView extends JFrame {
         } catch (Exception ex) {
             showErrorMessage("Invalid input (date or duration).");
         }
+    }
+
+    private void showEditAppointmentDialog() {
+        if (editAppointmentListener == null) { showErrorMessage("Appointment edit handler not set."); return; }
+
+        int row = appointmentsTable.getSelectedRow();
+        if (row < 0) { showErrorMessage("Select an appointment row first."); return; }
+
+        String appointmentId = appointmentsTable.getValueAt(row, 0).toString();
+
+        JTextField patientId = new JTextField(appointmentsTable.getValueAt(row, 1).toString());
+        JTextField clinicianId = new JTextField(appointmentsTable.getValueAt(row, 2).toString());
+        JTextField facilityId = new JTextField(appointmentsTable.getValueAt(row, 3).toString());
+        JTextField date = new JTextField(appointmentsTable.getValueAt(row, 4).toString());
+        JTextField time = new JTextField(appointmentsTable.getValueAt(row, 5).toString());
+        JTextField duration = new JTextField(appointmentsTable.getValueAt(row, 6).toString());
+        JTextField type = new JTextField(appointmentsTable.getValueAt(row, 7).toString());
+        JTextField reason = new JTextField(appointmentsTable.getValueAt(row, 9).toString());
+        JTextField notes = new JTextField(appointmentsTable.getValueAt(row, 10).toString());
+
+        JPanel form = formGrid(
+                "Appointment ID", new JLabel(appointmentId),
+                "patient ID", patientId,
+                "Clinician ID", clinicianId,
+                "Facility ID", facilityId,
+                "Date (yyyy-MM-dd)", date,
+                "Time (HH:mm)", time,
+                "Duration (minutes)", duration,
+                "Type", type,
+                "Reason", reason,
+                "Notes", notes
+        );
+
+        int ok = JOptionPane.showConfirmDialog(this, form, "Edit Appointment", JOptionPane.OK_CANCEL_OPTION);
+        if (ok != JOptionPane.OK_OPTION) return;
+
+        try {
+            Date d = parseDate(date.getText().trim());
+            int dur = Integer.parseInt(duration.getText().trim());
+
+            editAppointmentListener.onEditAppointment(
+                    appointmentId,
+                    patientId.getText().trim(),
+                    clinicianId.getText().trim(),
+                    facilityId.getText().trim(),
+                    d,
+                    time.getText().trim(),
+                    dur,
+                    type.getText().trim(),
+                    reason.getText().trim(),
+                    notes.getText().trim()
+            );
+        } catch (Exception ex) {
+            showErrorMessage("Invalid input (date or duration).");
+        }
+
     }
 
     private void showUpdateAppointmentStatusDialog() {
@@ -791,6 +848,7 @@ public class HCView extends JFrame {
     public void setDeleteClinicianListener(DeleteListener l) { this.deleteClinicianListener = l; }
 
     public void setAddAppointmentListener(AppointmentListener l) { this.addAppointmentListener = l; }
+    public void setEditAppointmentListener(EditAppointmentListener l) { this.editAppointmentListener = l; }
     public void setUpdateAppointmentStatusListener(UpdateStatusListener l) { this.updateAppointmentStatusListener = l; }
     public void setDeleteAppointmentListener(DeleteListener l) { this.deleteAppointmentListener = l; }
 
