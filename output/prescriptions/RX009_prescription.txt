@@ -1,0 +1,21 @@
+=== PRESCRIPTION CONTENT (SIMULATED) ===
+Prescription ID: RX009
+Date: 2025-08-20
+
+Patient ID: P003
+Clinician ID: C003
+Appointment ID: 
+
+Medication: Amlodipine
+Dosage: 5mg
+Frequency: Once daily
+Duration Days: 28
+Quantity: 28 tablets
+
+Instructions:
+Take in morning
+
+Pharmacy: Lloyds Pharmacy Solihull
+Status: Collected
+Issue Date: 2025-08-20
+Collection Date: 2025-08-22

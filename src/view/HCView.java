@@ -126,7 +126,8 @@ public class HCView extends JFrame {
         JPanel panel = new JPanel(new BorderLayout(8, 8));
 
         patientsTM = new DefaultTableModel(new String[]{
-                "PatientID","FirstName","LastName","NHS","Gender","Contact","Email","GP Surgery"
+                "PatientID","FirstName","LastName","DoB","NHS","Gender","Contact","Email","Address","Postcode",
+                "EmergencyContact_Name","EmergencyContact","RegistrationDate","GP Surgery"
         }, 0) {
             @Override public boolean isCellEditable(int r, int c) { return false; }
         };
@@ -150,16 +151,26 @@ public class HCView extends JFrame {
     }
 
     public void refreshPatientsTable(ArrayList<Patient> patients) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
         patientsTM.setRowCount(0);
         for (Patient p : patients) {
+            String dob = (p.getDoB() == null) ? "" : sdf.format(p.getDoB());
+            String reg = (p.getRegistrationDate() == null) ? ""  : sdf.format(p.getRegistrationDate());
             patientsTM.addRow(new Object[]{
                     p.getPatientId(),
                     p.getFirstName(),
                     p.getLastName(),
+                    dob,
                     p.getNhsNumber(),
                     p.getGender(),
                     p.getContact(),
                     p.getEmail(),
+                    p.getAddress(),
+                    p.getPostCode(),
+                    p.getEmergencyContactName(),
+                    p.getEmergencyContact(),
+                    reg,
                     p.getGpSurgeryId()
             });
         }
@@ -179,6 +190,7 @@ public class HCView extends JFrame {
         JTextField post = new JTextField();
         JTextField eName = new JTextField();
         JTextField eContact = new JTextField();
+        JTextField regDate = new JTextField();
         JTextField gp = new JTextField();
 
         JPanel form = formGrid(
@@ -193,6 +205,7 @@ public class HCView extends JFrame {
                 "Postcode", post,
                 "Emergency Name", eName,
                 "Emergency Contact", eContact,
+                "Registration Date", regDate,
                 "GP Surgery ID", gp
         );
 
@@ -213,6 +226,7 @@ public class HCView extends JFrame {
                     post.getText().trim(),
                     eName.getText().trim(),
                     eContact.getText().trim(),
+                    regDate.getText().trim(),
                     gp.getText().trim()
             );
         } catch (Exception ex) {
@@ -222,6 +236,7 @@ public class HCView extends JFrame {
 
     private void showEditPatientDialog() {
         if (editPatientListener == null) { showErrorMessage("Patient edit handler not set."); return; }
+
         int row = patientsTable.getSelectedRow();
         if (row < 0) { showErrorMessage("Select a patient row first."); return; }
 
@@ -229,17 +244,25 @@ public class HCView extends JFrame {
 
         JTextField first = new JTextField(patientsTable.getValueAt(row, 1).toString());
         JTextField last = new JTextField(patientsTable.getValueAt(row, 2).toString());
-        JTextField dob = new JTextField("yyyy-MM-dd"); // we keep it simple
-        JTextField nhs = new JTextField(patientsTable.getValueAt(row, 3).toString());
-        JTextField gender = new JTextField(patientsTable.getValueAt(row, 4).toString());
-        JTextField contact = new JTextField(patientsTable.getValueAt(row, 5).toString());
-        JTextField email = new JTextField(patientsTable.getValueAt(row, 6).toString());
-        JTextField gp = new JTextField(patientsTable.getValueAt(row, 7).toString());
 
-        JTextField address = new JTextField();
-        JTextField post = new JTextField();
-        JTextField eName = new JTextField();
-        JTextField eContact = new JTextField();
+        JTextField dob = new JTextField(String.valueOf(patientsTable.getValueAt(row, 3)));
+
+        JTextField nhs = new JTextField(patientsTable.getValueAt(row, 4).toString());
+        JTextField gender = new JTextField(patientsTable.getValueAt(row, 5).toString());
+        JTextField contact = new JTextField(patientsTable.getValueAt(row, 6).toString());
+        JTextField email = new JTextField(patientsTable.getValueAt(row, 7).toString());
+
+        JTextField address = new JTextField(patientsTable.getValueAt(row, 8).toString());
+        JTextField post = new JTextField(patientsTable.getValueAt(row, 9).toString());
+
+        JTextField eName = new JTextField(patientsTable.getValueAt(row, 10).toString());
+        JTextField eContact = new JTextField(patientsTable.getValueAt(row, 11).toString());
+
+        //This uses read-only because registration date usually shouldn’t change
+        JTextField regDate = new JTextField(patientsTable.getValueAt(row, 12).toString());
+        regDate.setEditable(false);
+
+        JTextField gp = new JTextField(patientsTable.getValueAt(row, 13).toString());
 
         JPanel form = formGrid(
                 "Patient ID", new JLabel(patientId),
@@ -254,6 +277,7 @@ public class HCView extends JFrame {
                 "Postcode", post,
                 "Emergency Name", eName,
                 "Emergency Contact", eContact,
+                "Registration Date", regDate,
                 "GP Surgery ID", gp
         );
 
@@ -262,6 +286,7 @@ public class HCView extends JFrame {
 
         try {
             Date d = parseDate(dob.getText().trim());
+
             editPatientListener.onEditPatient(
                     patientId,
                     first.getText().trim(),
@@ -275,6 +300,7 @@ public class HCView extends JFrame {
                     post.getText().trim(),
                     eName.getText().trim(),
                     eContact.getText().trim(),
+                    regDate.getText().trim(),
                     gp.getText().trim()
             );
         } catch (Exception ex) {
@@ -282,13 +308,15 @@ public class HCView extends JFrame {
         }
     }
 
+
     // ========================= CLINICIANS TAB =========================
 
     private JPanel buildCliniciansTab() {
         JPanel panel = new JPanel(new BorderLayout(8, 8));
 
         cliniciansTM = new DefaultTableModel(new String[]{
-                "ClinicianID","FirstName","LastName","Title","Speciality","GMC","Contact","Email","WorkplaceID","WorkplaceType"
+                "ClinicianID","FirstName","LastName","Title","Speciality","GMC","Contact","Email","WorkplaceID",
+                "WorkplaceType", "EmploymentStatus", "StartDate"
         }, 0) {
             @Override public boolean isCellEditable(int r, int c) { return false; }
         };
@@ -310,8 +338,11 @@ public class HCView extends JFrame {
     }
 
     public void refreshCliniciansTable(ArrayList<Clinician> clinicians) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
         cliniciansTM.setRowCount(0);
         for (Clinician c : clinicians) {
+            String start = (c.getStartDate() == null) ? "" : sdf.format(c.getStartDate());
             cliniciansTM.addRow(new Object[]{
                     c.getClinicianId(),
                     c.getFirstName(),
@@ -322,7 +353,9 @@ public class HCView extends JFrame {
                     c.getContact(),
                     c.getEmail(),
                     c.getWorkplaceId(),
-                    c.getWorkplaceType()
+                    c.getWorkplaceType(),
+                    c.getEmploymentStatus(),
+                    start
             });
         }
     }
@@ -385,7 +418,8 @@ public class HCView extends JFrame {
         JPanel panel = new JPanel(new BorderLayout(8, 8));
 
         appointmentsTM = new DefaultTableModel(new String[]{
-                "AppointmentID","PatientID","ClinicianID","FacilityID","Date","Time","Duration","Type","Status","Reason"
+                "AppointmentID","PatientID","ClinicianID","FacilityID","Date","Time","Duration","Type","Status","Reason",
+                "Notes","CreatedDate","LastModified"
         }, 0) { @Override public boolean isCellEditable(int r, int c) { return false; } };
 
         appointmentsTable = new JTable(appointmentsTM);
@@ -394,10 +428,12 @@ public class HCView extends JFrame {
         JPanel btns = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JButton add = new JButton("Add");
         JButton updateStatus = new JButton("Update Status");
+        //JButton edit = new JButton("Edit");
         JButton del = new JButton("Delete");
 
         add.addActionListener(e -> showAddAppointmentDialog());
         updateStatus.addActionListener(e -> showUpdateAppointmentStatusDialog());
+        //edit.addActionListener(e -> showEdit);
         del.addActionListener(e -> deleteSelected(appointmentsTable, deleteAppointmentListener, "appointment"));
 
         btns.add(add); btns.add(updateStatus); btns.add(del);
@@ -410,6 +446,8 @@ public class HCView extends JFrame {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         appointmentsTM.setRowCount(0);
         for (Appointment a : appts) {
+            String created = (a.getCreatedDate() == null) ? "" : sdf.format(a.getCreatedDate());
+            String modified = (a.getLastModified() == null) ? "" : sdf.format(a.getLastModified());
             appointmentsTM.addRow(new Object[]{
                     a.getAppointmentId(),
                     a.getPatientId(),
@@ -420,7 +458,10 @@ public class HCView extends JFrame {
                     a.getDurationMinutes(),
                     a.getAppointmentType(),
                     a.getStatus() == null ? "" : a.getStatus().toCSV(),
-                    a.getReason_For_Visit()
+                    a.getReason_For_Visit(),
+                    a.getNotes(),
+                    created,
+                    modified
             });
         }
     }
@@ -437,6 +478,8 @@ public class HCView extends JFrame {
         JTextField type = new JTextField("Consultation");
         JTextField reason = new JTextField();
         JTextField notes = new JTextField();
+        JTextField cdate = new JTextField("yyyy-MM-dd");
+        JTextField mdate = new JTextField("yyyy-MM-dd");
 
         JPanel form = formGrid(
                 "Patient ID", patientId,
@@ -447,7 +490,9 @@ public class HCView extends JFrame {
                 "Duration (minutes)", duration,
                 "Type", type,
                 "Reason", reason,
-                "Notes", notes
+                "Notes", notes,
+                "CreatedDate", cdate,
+                "LastModified", mdate
         );
 
         int ok = JOptionPane.showConfirmDialog(this, form, "Add Appointment", JOptionPane.OK_CANCEL_OPTION);
@@ -456,6 +501,8 @@ public class HCView extends JFrame {
         try {
             Date d = parseDate(date.getText().trim());
             int dur = Integer.parseInt(duration.getText().trim());
+            Date dc = parseDate(cdate.getText().trim());
+            Date dm = parseDate(mdate.getText().trim());
 
             addAppointmentListener.onAddAppointment(
                     patientId.getText().trim(),
@@ -466,7 +513,9 @@ public class HCView extends JFrame {
                     dur,
                     type.getText().trim(),
                     reason.getText().trim(),
-                    notes.getText().trim()
+                    notes.getText().trim(),
+                    dc,
+                    dm
             );
         } catch (Exception ex) {
             showErrorMessage("Invalid input (date or duration).");
@@ -495,7 +544,8 @@ public class HCView extends JFrame {
         JPanel panel = new JPanel(new BorderLayout(8, 8));
 
         prescriptionsTM = new DefaultTableModel(new String[]{
-                "PrescriptionID","PatientID","ClinicianID","AppointmentID","Medication","Dosage","Frequency","Days","Pharmacy","Status"
+                "PrescriptionID","PatientID","ClinicianID","AppointmentID","PrescriptionDate","Medication","Dosage",
+                "Frequency","Days","Quantity","Instructions","Pharmacy","Status","IssuedDate", "CollectionDate"
         }, 0) { @Override public boolean isCellEditable(int r, int c) { return false; } };
 
         prescriptionsTable = new JTable(prescriptionsTM);
@@ -517,19 +567,27 @@ public class HCView extends JFrame {
     }
 
     public void refreshPrescriptionsTable(ArrayList<Prescription> rxList, HCModel model) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
         prescriptionsTM.setRowCount(0);
         for (Prescription rx : rxList) {
+            String pdate = (rx.getPrescriptionDate() == null) ? "" : sdf.format(rx.getPrescriptionDate());
             prescriptionsTM.addRow(new Object[]{
                     rx.getPrescriptionId(),
                     rx.getPatientId(),
                     rx.getClinicianId(),
                     rx.getAppointmentId(),
+                    pdate,
                     rx.getMedicationName(),
                     rx.getDosage(),
                     rx.getFrequency(),
                     rx.getDurationDays(),
+                    rx.getQuantity(),
+                    rx.getInstruction(),
                     rx.getPharmacyName(),
-                    rx.getStatus()
+                    rx.getStatus(),
+                    rx.getIssueDate(),
+                    rx.getCollectionDate()
             });
         }
     }

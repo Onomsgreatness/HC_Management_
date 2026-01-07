@@ -46,9 +46,9 @@ public class HCController {
             public void onAddPatient(String firstName, String lastName, Date dob, String nhsNumber,
                                      String gender, String contact, String email, String address,
                                      String postCode, String emergencyContactName, String emergencyContact,
-                                     String gpSurgeryId) {
+                                     String registrationDate, String gpSurgeryId) {
                 handleAddPatient(firstName, lastName, dob, nhsNumber, gender, contact, email,
-                        address, postCode, emergencyContactName, emergencyContact, gpSurgeryId);
+                        address, postCode, emergencyContactName, emergencyContact, registrationDate, gpSurgeryId);
             }
         });
 
@@ -56,9 +56,9 @@ public class HCController {
             public void onEditPatient(String patientId, String firstName, String lastName, Date dob,
                                       String nhsNumber, String gender, String contact, String email,
                                       String address, String postCode, String emergencyContactName,
-                                      String emergencyContact, String gpSurgeryId) {
+                                      String emergencyContact, String registrationDate, String gpSurgeryId) {
                 handleEditPatient(patientId, firstName, lastName, dob, nhsNumber, gender, contact,
-                        email, address, postCode, emergencyContactName, emergencyContact, gpSurgeryId);
+                        email, address, postCode, emergencyContactName, emergencyContact, registrationDate,gpSurgeryId);
             }
         });
 
@@ -100,9 +100,10 @@ public class HCController {
         view.setAddAppointmentListener(new AppointmentListener() {
             public void onAddAppointment(String patientId, String clinicianId, String facilityId,
                                          Date appointmentDate, String appointmentTime, int durationMinutes,
-                                         String appointmentType, String reasonForVisit, String notes) {
+                                         String appointmentType, String reasonForVisit, String notes,
+                                         Date createdDate, Date lastModified) {
                 handleAddAppointment(patientId, clinicianId, facilityId, appointmentDate, appointmentTime,
-                        durationMinutes, appointmentType, reasonForVisit, notes);
+                        durationMinutes, appointmentType, reasonForVisit, notes, createdDate, lastModified);
             }
         });
 
@@ -239,13 +240,13 @@ public class HCController {
     private void handleAddPatient(String firstName, String lastName, Date dob, String nhsNumber,
                                   String gender, String contact, String email, String address,
                                   String postCode, String emergencyContactName, String emergencyContact,
-                                  String gpSurgeryId) {
+                                  String registrationDate, String gpSurgeryId) {
         String patientId = model.generatePatientId();
-        Date registrationDate = new Date();
+        Date reg = new Date();
 
         Patient patient = new Patient(patientId, firstName, lastName, dob, nhsNumber, gender,
                 contact, email, address, postCode, emergencyContactName,
-                emergencyContact, registrationDate, gpSurgeryId);
+                emergencyContact, reg, gpSurgeryId);
         model.addPatient(patient);
         view.showSuccessMessage("Patient added successfully!");
         handleRefreshPatients();
@@ -254,13 +255,13 @@ public class HCController {
     private void handleEditPatient(String patientId, String firstName, String lastName, Date dob,
                                    String nhsNumber, String gender, String contact, String email,
                                    String address, String postCode, String emergencyContactName,
-                                   String emergencyContact, String gpSurgeryId) {
+                                   String emergencyContact, String registrationDate, String gpSurgeryId) {
         Patient patient = model.getPatient(patientId);
         if (patient != null) {
-            Date registrationDate = patient.getRegistrationDate();
+            Date reg = patient.getRegistrationDate();
             Patient updatedPatient = new Patient(patientId, firstName, lastName, dob, nhsNumber, gender,
                     contact, email, address, postCode, emergencyContactName,
-                    emergencyContact, registrationDate, gpSurgeryId);
+                    emergencyContact, reg, gpSurgeryId);
             model.updatePatient(updatedPatient);
             view.showSuccessMessage("Patient updated successfully!");
             handleRefreshPatients();
@@ -279,7 +280,8 @@ public class HCController {
         view.refreshCliniciansTable(model.getAllClinicians());
     }
 
-    private void handleAddClinician(String firstName, String lastName, String title, String speciality,
+    private void handleAddClinician(String firstName, String lastName, String title,
+                                    String speciality,
                                     String gmcNumber, String contact, String email, String workplaceId,
                                     String workplaceType, EmploymentStatus employmentStatus, Date startDate) {
         String clinicianId = model.generateClinicianId();
@@ -306,7 +308,8 @@ public class HCController {
 
     private void handleAddAppointment(String patientId, String clinicianId, String facilityId,
                                       Date appointmentDate, String appointmentTime, int durationMinutes,
-                                      String appointmentType, String reasonForVisit, String notes) {
+                                      String appointmentType, String reasonForVisit, String notes,
+                                      Date cDate, Date lmDate) {
         String appointmentId = model.generateAppointmentId();
         Date createdDate = new Date();
         Date lastModified = new Date();

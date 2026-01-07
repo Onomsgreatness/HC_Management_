@@ -12,5 +12,5 @@ public interface EditPatientListener {
     void onEditPatient(String patientId, String firstName, String lastName, Date dob,
                        String nhsNumber, String gender, String contact, String email,
                        String address, String postCode, String emergencyContactName,
-                       String emergencyContact, String gpSurgeryId);
+                       String emergencyContact, String regDate, String gpSurgeryId);
 }

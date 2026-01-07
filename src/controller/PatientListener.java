@@ -12,5 +12,5 @@ public interface PatientListener {
     void onAddPatient(String firstName, String lastName, Date dob, String nhsNumber,
                       String gender, String contact, String email, String address,
                       String postCode, String emergencyContactName, String emergencyContact,
-                      String gpSurgeryId);
+                      String regDate, String gpSurgeryId);
 }
