@@ -222,6 +222,13 @@ public class HCController {
             }
         });
 
+        view.setDeleteReferralListener(new DeleteListener() {
+            public void onDelete(String id) {
+                handleDeleteReferral(id);
+            }
+        });
+
+
         view.setGenerateReferralDocumentListener(new GenerateDocumentListener() {
             public void onGenerateDocument(String id) {
                 handleGenerateReferralDocument(id);
@@ -582,6 +589,14 @@ public class HCController {
         view.showSuccessMessage("Referral status updated!");
         handleRefreshReferrals();
     }
+
+    private void handleDeleteReferral(String referralId) {
+        ReferralManager rm = model.getReferralManager();
+        rm.deleteReferral(referralId);
+        view.showSuccessMessage("Referral deleted successfully!");
+        handleRefreshReferrals();
+    }
+
 
     private void handleGenerateReferralDocument(String referralId) {
         ReferralManager rm = model.getReferralManager();

@@ -47,6 +47,7 @@ public class HCView extends JFrame {
     private DeleteListener deletePrescriptionListener;
 
     private EditReferralListener editReferralListener;
+    private DeleteListener deleteReferralListener;
 
     private Runnable refreshReferralsListener;
     private Runnable refreshFacilitiesListener;
@@ -900,14 +901,16 @@ public class HCView extends JFrame {
         JButton add = new JButton("Add");
         JButton edit = new JButton("Edit");
         JButton updateStatus = new JButton("Update Status");
+        JButton del = new JButton("Delete");
         JButton genDoc = new JButton("Generate Document");
 
         add.addActionListener(e -> showAddReferralDialog());
         edit.addActionListener(e -> showEditReferralDialog());
         updateStatus.addActionListener(e -> showUpdateReferralStatusDialog());
+        del.addActionListener(e -> deleteSelected(referralsTable, deleteReferralListener, "referral"));
         genDoc.addActionListener(e -> generateSelectedReferralDoc());
 
-        btns.add(add); btns.add(edit); btns.add(updateStatus); btns.add(genDoc);
+        btns.add(add); btns.add(edit); btns.add(updateStatus); btns.add(del); btns.add(genDoc);
 
         panel.add(btns, BorderLayout.SOUTH);
         return panel;
@@ -1158,11 +1161,11 @@ public class HCView extends JFrame {
     public void setGeneratePrescriptionDocumentListener(GenerateDocumentListener l) { this.generatePrescriptionDocumentListener = l; }
     public void setDeletePrescriptionListener(DeleteListener l) { this.deletePrescriptionListener = l; }
 
-    // extra setters the controller calls (kept for compilation)
     public void setRefreshReferralsListener(Runnable r) { this.refreshReferralsListener = r; }
     public void setAddReferralListener(ReferralListener l) { this.addReferralListener = l; }
     public void setEditReferralListener(EditReferralListener l) { this.editReferralListener = l; }
     public void setUpdateReferralStatusListener(UpdateStatusListener l) { this.updateReferralStatusListener = l; }
+    public void setDeleteReferralListener(DeleteListener l) { this.deleteReferralListener = l; }
     public void setGenerateReferralDocumentListener(GenerateDocumentListener l) { this.generateReferralDocumentListener = l; }
 
     public void setRefreshFacilitiesListener(Runnable r) { this.refreshFacilitiesListener = r; }
