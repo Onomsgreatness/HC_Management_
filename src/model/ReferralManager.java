@@ -93,6 +93,16 @@ ReferralManager {
         }
     }
 
+    public void updateReferral(Referral updated) {
+        for (int i = 0; i < referrals.size(); i++) {
+            if (referrals.get(i).getReferralId().equals(updated.getReferralId())) {
+                referrals.set(i, updated);
+                return;
+            }
+        }
+    }
+
+
     public void writeReferralEmailText(Referral referral) {
         if (referral == null) return;
 

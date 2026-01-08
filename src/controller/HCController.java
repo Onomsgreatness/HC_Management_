@@ -562,14 +562,14 @@ public class HCController {
                 referralReason,
                 clinicalSummary,
                 requestedInvestigation,
-                existing.getStatus(),          // keep current status
+                existing.getStatus(),
                 appointmentId,
                 notes,
-                existing.getCreatedDate(),     // keep created date
-                new Date()                     // update lastUpdated
+                existing.getCreatedDate(),
+                new Date()
         );
 
-        rm.updateReferral(updated); // YOU must implement this (next step)
+        rm.updateReferral(updated);
         view.showSuccessMessage("Referral updated successfully!");
         handleRefreshReferrals();
     }
