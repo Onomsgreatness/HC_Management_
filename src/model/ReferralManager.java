@@ -84,6 +84,16 @@ ReferralManager {
         saveReferrals();
     }
 
+    public void deleteReferral(String referralId) {
+        for (int i = 0; i < referrals.size(); i++) {
+            if (referrals.get(i).getReferralId().equals(referralId)) {
+                referrals.remove(i);
+                return;
+            }
+        }
+    }
+
+
     public void updateReferralStatus(String referralId, ReferralStatus newStatus) {
         Referral r = getReferralById(referralId);
         if (r != null) {

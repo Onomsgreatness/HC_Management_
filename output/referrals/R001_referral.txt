@@ -1,0 +1,27 @@
+=== REFERRAL EMAIL CONTENT (SIMULATED) ===
+Referral ID: R001
+Date: 2025-09-10
+
+Patient ID: P005
+Appointment ID: A005
+
+From Clinician ID: C001
+To Clinician ID: C005
+From Facility ID: S001
+To Facility ID: H001
+
+Urgency: Routine
+Reason: Heart murmur investigation
+
+Clinical Summary:
+35-year-old male with Grade 2/6 systolic murmur detected during routine examination. No symptoms of chest pain or breathlessness.
+
+Requested Investigation:
+Echocardiogram|ECG
+
+Notes:
+Patient seen, echo normal
+
+Status: Completed
+Created: 2025-09-10
+Last Updated: 2025-09-25
