@@ -1,0 +1,27 @@
+=== REFERRAL EMAIL CONTENT ===
+Referral ID: R004
+Date: 2025-09-11
+
+Patient ID: P009
+Appointment ID: A009
+
+From Clinician ID: C004
+To Clinician ID: C007
+From Facility ID: S003
+To Facility ID: H002
+
+Urgency: Routine
+Reason: Chronic knee pain
+
+Clinical Summary:
+44-year-old male with 2-year history of right knee pain affecting mobility. X-ray shows mild degenerative changes.
+
+Requested Investigation:
+MRI Knee|Orthopaedic assessment
+
+Notes:
+Physiotherapy commenced
+
+Status: In Progress
+Created: 2025-09-11
+Last Updated: 2025-09-27

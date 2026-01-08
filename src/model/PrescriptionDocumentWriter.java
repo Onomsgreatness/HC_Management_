@@ -28,7 +28,7 @@ public class PrescriptionDocumentWriter {
         String filename = OUT_DIR + "/" + rx.getPrescriptionId() + "_prescription.txt";
 
         ArrayList<String> lines = new ArrayList<>();
-        lines.add("=== PRESCRIPTION CONTENT (SIMULATED) ===");
+        lines.add("=== PRESCRIPTION CONTENT ===");
         lines.add("Prescription ID: " + safe(rx.getPrescriptionId()));
         lines.add("Date: " + (rx.getPrescriptionDate() == null ? "" : sdf.format(rx.getPrescriptionDate())));
         lines.add("");

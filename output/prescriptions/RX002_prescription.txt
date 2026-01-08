@@ -1,0 +1,21 @@
+=== PRESCRIPTION CONTENT ===
+Prescription ID: RX002
+Date: 2025-09-20
+
+Patient ID: P002
+Clinician ID: C009
+Appointment ID: A002
+
+Medication: Paracetamol
+Dosage: 500mg
+Frequency: As required
+Duration Days: 7
+Quantity: 16 tablets
+
+Instructions:
+Max 8 tablets in 24 hours
+
+Pharmacy: Superdrug Birmingham Central
+Status: Issued
+Issue Date: 2025-09-20
+Collection Date: 

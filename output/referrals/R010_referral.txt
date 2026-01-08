@@ -1,0 +1,27 @@
+=== REFERRAL EMAIL CONTENT ===
+Referral ID: R010
+Date: 2025-09-12
+
+Patient ID: P006
+Appointment ID: 
+
+From Clinician ID: C004
+To Clinician ID: C006
+From Facility ID: S003
+To Facility ID: H001
+
+Urgency: Urgent
+Reason: Memory problems
+
+Clinical Summary:
+47-year-old female reporting significant memory issues and confusion. Family concerned about early onset dementia.
+
+Requested Investigation:
+Cognitive assessment|MRI Brain
+
+Notes:
+Early intervention referral requested
+
+Status: Pending
+Created: 2025-09-12
+Last Updated: 2025-09-12

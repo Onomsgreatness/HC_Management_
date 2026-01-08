@@ -123,7 +123,7 @@ ReferralManager {
         String filename = REFERRAL_EMAIL_OUT_DIR + "/" + referral.getReferralId() + "_referral.txt";
 
         ArrayList<String> lines = new ArrayList<>();
-        lines.add("=== REFERRAL EMAIL CONTENT (SIMULATED) ===");
+        lines.add("=== REFERRAL EMAIL CONTENT ===");
         lines.add("Referral ID: " + referral.getReferralId());
         lines.add("Date: " + (referral.getReferralDate() == null ? "" : sdf.format(referral.getReferralDate())));
         lines.add("");
