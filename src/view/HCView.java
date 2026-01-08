@@ -72,6 +72,10 @@ public class HCView extends JFrame {
     private DefaultTableModel prescriptionsTM;
     private JTable prescriptionsTable;
 
+    private DefaultTableModel referralsTM;
+    private JTable referralsTable;
+
+
     public HCView() {
         setTitle("Healthcare System - MVC");
         setSize(1100, 650);
@@ -108,6 +112,7 @@ public class HCView extends JFrame {
         tabs.addTab("Clinicians", buildCliniciansTab());
         tabs.addTab("Appointments", buildAppointmentsTab());
         tabs.addTab("Prescriptions", buildPrescriptionsTab());
+        tabs.addTab("Referrals", buildReferralsTab());
 
         add(tabs, BorderLayout.CENTER);
     }
@@ -119,6 +124,7 @@ public class HCView extends JFrame {
             case "Clinicians" -> { if (refreshCliniciansListener != null) refreshCliniciansListener.run(); }
             case "Appointments" -> { if (refreshAppointmentsListener != null) refreshAppointmentsListener.run(); }
             case "Prescriptions" -> { if (refreshPrescriptionsListener != null) refreshPrescriptionsListener.run(); }
+            case "Referrals" -> { if (refreshReferralsListener != null) refreshReferralsListener.run(); }
         }
     }
 
@@ -684,14 +690,16 @@ public class HCView extends JFrame {
 
         JPanel btns = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JButton add = new JButton("Add");
+        JButton edit = new JButton("Edit");
         JButton genDoc = new JButton("Generate Document");
         JButton del = new JButton("Delete");
 
         add.addActionListener(e -> showAddPrescriptionDialog());
+        edit.addActionListener(e -> showEditPrescriptionDialog());
         genDoc.addActionListener(e -> generateSelectedPrescriptionDoc());
         del.addActionListener(e -> deleteSelected(prescriptionsTable, deletePrescriptionListener, "prescription"));
 
-        btns.add(add); btns.add(genDoc); btns.add(del);
+        btns.add(add); btns.add(edit); btns.add(genDoc); btns.add(del);
         panel.add(btns, BorderLayout.SOUTH);
 
         return panel;
@@ -703,6 +711,9 @@ public class HCView extends JFrame {
         prescriptionsTM.setRowCount(0);
         for (Prescription rx : rxList) {
             String pdate = (rx.getPrescriptionDate() == null) ? "" : sdf.format(rx.getPrescriptionDate());
+            String idate = (rx.getIssueDate() == null) ? "" : sdf.format(rx.getIssueDate());
+            String cdate = (rx.getCollectionDate()== null) ? "" : sdf.format(rx.getCollectionDate());
+
             prescriptionsTM.addRow(new Object[]{
                     rx.getPrescriptionId(),
                     rx.getPatientId(),
@@ -717,8 +728,8 @@ public class HCView extends JFrame {
                     rx.getInstruction(),
                     rx.getPharmacyName(),
                     rx.getStatus(),
-                    rx.getIssueDate(),
-                    rx.getCollectionDate()
+                    idate,
+                    cdate
             });
         }
     }
@@ -778,6 +789,87 @@ public class HCView extends JFrame {
         }
     }
 
+    private void showEditPrescriptionDialog() {
+        if (editPrescriptionListener == null) {
+            showErrorMessage("Prescription edit handler not set.");
+            return;
+        }
+
+        int row = prescriptionsTable.getSelectedRow();
+        if (row < 0) {
+            showErrorMessage("Select a prescription row first.");
+            return;
+        }
+
+        String prescriptionId = prescriptionsTable.getValueAt(row, 0).toString();
+
+        JTextField patientId = new JTextField(String.valueOf(prescriptionsTable.getValueAt(row, 1)));
+        JTextField clinicianId = new JTextField(String.valueOf(prescriptionsTable.getValueAt(row, 2)));
+        JTextField appointmentId = new JTextField(String.valueOf(prescriptionsTable.getValueAt(row, 3)));
+        JTextField prescriptionDate = new JTextField(String.valueOf(prescriptionsTable.getValueAt(row, 4)));
+        JTextField medication = new JTextField(String.valueOf(prescriptionsTable.getValueAt(row, 5)));
+        JTextField dosage = new JTextField(String.valueOf(prescriptionsTable.getValueAt(row, 6)));
+        JTextField frequency = new JTextField(String.valueOf(prescriptionsTable.getValueAt(row, 7)));
+        JTextField days = new JTextField(String.valueOf(prescriptionsTable.getValueAt(row, 8)));
+        JTextField quantity = new JTextField(String.valueOf(prescriptionsTable.getValueAt(row, 9)));
+        JTextField instruction = new JTextField(String.valueOf(prescriptionsTable.getValueAt(row, 10)));
+        JTextField pharmacy = new JTextField(String.valueOf(prescriptionsTable.getValueAt(row, 11)));
+        JTextField status = new JTextField(String.valueOf(prescriptionsTable.getValueAt(row, 12)));
+        JTextField issuedDate = new JTextField(String.valueOf(prescriptionsTable.getValueAt(row, 13)));
+        JTextField collectionDate = new JTextField(String.valueOf(prescriptionsTable.getValueAt(row, 14)));
+
+        JPanel form = formGrid(
+                "Prescription ID", new JLabel(prescriptionId),
+                "Patient ID", patientId,
+                "Clinician ID", clinicianId,
+                "Appointment ID", appointmentId,
+                "Prescription Date (yyyy-MM-dd)", prescriptionDate,
+                "Medication", medication,
+                "Dosage", dosage,
+                "Frequency", frequency,
+                "Duration Days", days,
+                "Quantity", quantity,
+                "Instructions", instruction,
+                "Pharmacy", pharmacy,
+                "Status", status,
+                "Issued Date (yyyy-MM-dd)", issuedDate,
+                "Collection Date (yyyy-MM-dd)", collectionDate
+        );
+
+        int ok = JOptionPane.showConfirmDialog(this, form, "Edit Prescription", JOptionPane.OK_CANCEL_OPTION);
+        if (ok != JOptionPane.OK_OPTION) return;
+
+        try {
+            Date pDate = parseDate(prescriptionDate.getText().trim());
+            int durationDays = Integer.parseInt(days.getText().trim());
+
+            Date iDate = issuedDate.getText().trim().isEmpty() ? null : parseDate(issuedDate.getText().trim());
+            Date cDate = collectionDate.getText().trim().isEmpty() ? null : parseDate(collectionDate.getText().trim());
+
+            editPrescriptionListener.onEditPrescription(
+                    prescriptionId,
+                    patientId.getText().trim(),
+                    clinicianId.getText().trim(),
+                    appointmentId.getText().trim(),
+                    pDate,
+                    medication.getText().trim(),
+                    dosage.getText().trim(),
+                    frequency.getText().trim(),
+                    durationDays,
+                    quantity.getText().trim(),
+                    instruction.getText().trim(),
+                    pharmacy.getText().trim(),
+                    status.getText().trim(),
+                    iDate,
+                    cDate
+            );
+
+        } catch (Exception ex) {
+            showErrorMessage("Invalid input. Check dates (yyyy-MM-dd) and days (number).");
+        }
+    }
+
+
     private void generateSelectedPrescriptionDoc() {
         if (generatePrescriptionDocumentListener == null) { showErrorMessage("GenerateDocument handler not set."); return; }
         int row = prescriptionsTable.getSelectedRow();
@@ -786,9 +878,159 @@ public class HCView extends JFrame {
         generatePrescriptionDocumentListener.onGenerateDocument(id);
     }
 
+    // ========================= REFERRALS TAB =========================
+    private JPanel buildReferralsTab() {
+        JPanel panel = new JPanel(new BorderLayout(8, 8));
+
+        referralsTM = new DefaultTableModel(new String[]{
+                "ReferralID","PatientID","RefClinicianID","ReferredClinicianID",
+                "FromFacilityID","ToFacilityID","ReferralDate","Urgency",
+                "Reason","ClinicalSummary","RequestedInvestigation",
+                "Status","AppointmentID","Notes","CreatedDate","LastUpdated"
+        }, 0) {
+            @Override public boolean isCellEditable(int r, int c) { return false; }
+        };
+
+        referralsTable = new JTable(referralsTM);
+        panel.add(new JScrollPane(referralsTable), BorderLayout.CENTER);
+
+        JPanel btns = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JButton add = new JButton("Add");
+        JButton updateStatus = new JButton("Update Status");
+        JButton genDoc = new JButton("Generate Document");
+
+        add.addActionListener(e -> showAddReferralDialog());
+        updateStatus.addActionListener(e -> showUpdateReferralStatusDialog());
+        genDoc.addActionListener(e -> generateSelectedReferralDoc());
+
+        btns.add(add);
+        btns.add(updateStatus);
+        btns.add(genDoc);
+
+        panel.add(btns, BorderLayout.SOUTH);
+        return panel;
+    }
+
+    public void refreshReferralsTable(ArrayList<Referral> refs, HCModel model) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        referralsTM.setRowCount(0);
+
+        for (Referral r : refs) {
+            String rdate = (r.getReferralDate() == null) ? "" : sdf.format(r.getReferralDate());
+            String created = (r.getCreatedDate() == null) ? "" : sdf.format(r.getCreatedDate());
+            String updated = (r.getLastUpdated() == null) ? "" : sdf.format(r.getLastUpdated());
+
+            referralsTM.addRow(new Object[]{
+                    r.getReferralId(),
+                    r.getPatientId(),
+                    r.getReferringClinicianId(),
+                    r.getReferredToClinicianId(),
+                    r.getReferringFacilityId(),
+                    r.getReferringToFacilityId(),
+                    rdate,
+                    r.getUrgencyLevel(),
+                    r.getReferralReason(),
+                    r.getClinicalSummary(),
+                    r.getRequestedInvestigation(),
+                    (r.getStatus() == null ? "" : r.getStatus().toCSV()),
+                    r.getAppointmentId(),
+                    r.getNotes(),
+                    created,
+                    updated
+            });
+        }
+    }
+
+    private void showAddReferralDialog() {
+        if (addReferralListener == null) { showErrorMessage("Referral add handler not set."); return; }
+
+        JTextField patientId = new JTextField();
+        JTextField refClinicianId = new JTextField();
+        JTextField referredClinicianId = new JTextField();
+        JTextField fromFacilityId = new JTextField();
+        JTextField toFacilityId = new JTextField();
+        JTextField referralDate = new JTextField("yyyy-MM-dd");
+        JTextField urgency = new JTextField("Routine");
+        JTextField reason = new JTextField();
+        JTextField summary = new JTextField();
+        JTextField investigation = new JTextField();
+        JTextField appointmentId = new JTextField();
+        JTextField notes = new JTextField();
+
+        JPanel form = formGrid(
+                "Patient ID", patientId,
+                "Referring Clinician ID", refClinicianId,
+                "Referred To Clinician ID", referredClinicianId,
+                "Referring Facility ID", fromFacilityId,
+                "Referred To Facility ID", toFacilityId,
+                "Referral Date (yyyy-MM-dd)", referralDate,
+                "Urgency Level", urgency,
+                "Referral Reason", reason,
+                "Clinical Summary", summary,
+                "Requested Investigation", investigation,
+                "Appointment ID", appointmentId,
+                "Notes", notes
+        );
+
+        int ok = JOptionPane.showConfirmDialog(this, form, "Add Referral", JOptionPane.OK_CANCEL_OPTION);
+        if (ok != JOptionPane.OK_OPTION) return;
+
+        try {
+            Date d = parseDate(referralDate.getText().trim());
+
+            addReferralListener.onAddReferral(
+                    patientId.getText().trim(),
+                    refClinicianId.getText().trim(),
+                    referredClinicianId.getText().trim(),
+                    fromFacilityId.getText().trim(),
+                    toFacilityId.getText().trim(),
+                    d,
+                    urgency.getText().trim(),
+                    reason.getText().trim(),
+                    summary.getText().trim(),
+                    investigation.getText().trim(),
+                    appointmentId.getText().trim(),
+                    notes.getText().trim()
+            );
+        } catch (Exception ex) {
+            showErrorMessage("Invalid referral date. Use yyyy-MM-dd");
+        }
+    }
+
+    private void showUpdateReferralStatusDialog() {
+        if (updateReferralStatusListener == null) { showErrorMessage("UpdateReferralStatus handler not set."); return; }
+        int row = referralsTable.getSelectedRow();
+        if (row < 0) { showErrorMessage("Select a referral row first."); return; }
+
+        String referralId = referralsTable.getValueAt(row, 0).toString();
+        JTextField status = new JTextField("NEW"); // e.g. NEW/ACCEPTED/REJECTED/COMPLETED etc.
+
+        JPanel form = formGrid("New Status", status);
+
+        int ok = JOptionPane.showConfirmDialog(this, form, "Update Referral Status: " + referralId, JOptionPane.OK_CANCEL_OPTION);
+        if (ok != JOptionPane.OK_OPTION) return;
+
+        updateReferralStatusListener.onUpdateStatus(referralId, status.getText().trim());
+    }
+
+    private void generateSelectedReferralDoc() {
+        if (generateReferralDocumentListener == null) { showErrorMessage("GenerateReferralDocument handler not set."); return; }
+        int row = referralsTable.getSelectedRow();
+        if (row < 0) { showErrorMessage("Select a referral row first."); return; }
+        String id = referralsTable.getValueAt(row, 0).toString();
+        generateReferralDocumentListener.onGenerateDocument(id);
+    }
+
+
+
+
+
+
+
+
+
     // ========================= REQUIRED “IGNORE” METHODS)=========================
 
-    public void refreshReferralsTable(ArrayList<Referral> refs, HCModel model) {}
     public void refreshFacilitiesTable(ArrayList<Facility> facilities) {}
     public void refreshStaffTable(ArrayList<Staff> staff) {}
 

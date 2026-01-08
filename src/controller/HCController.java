@@ -158,6 +158,20 @@ public class HCController {
             }
         });
 
+        view.setEditPrescriptionListener(new EditPrescriptionListener() {
+            public void onEditPrescription(String prescriptionId, String patientId, String clinicianId, String appointmentId,
+                                           Date prescriptionDate, String medicationName, String dosage, String frequency,
+                                           int durationDays, String quantity, String instruction, String pharmacyName,
+                                           String status, Date issueDate, Date collectionDate) {
+
+                handleEditPrescription(prescriptionId, patientId, clinicianId, appointmentId,
+                        prescriptionDate, medicationName, dosage, frequency,
+                        durationDays, quantity, instruction, pharmacyName,
+                        status, issueDate, collectionDate);
+            }
+        });
+
+
         view.setGeneratePrescriptionDocumentListener(new GenerateDocumentListener() {
             public void onGenerateDocument(String id) {
                 handleGeneratePrescriptionDocument(id);
@@ -434,6 +448,41 @@ public class HCController {
         view.showSuccessMessage("Prescription added successfully!");
         handleRefreshPrescriptions();
     }
+
+    private void handleEditPrescription(String prescriptionId, String patientId, String clinicianId, String appointmentId,
+                                        Date prescriptionDate, String medicationName, String dosage, String frequency,
+                                        int durationDays, String quantity, String instruction, String pharmacyName,
+                                        String status, Date issueDate, Date collectionDate) {
+
+        Prescription existing = model.getPrescription(prescriptionId);
+        if (existing == null) {
+            view.showErrorMessage("Prescription not found: " + prescriptionId);
+            return;
+        }
+
+        Prescription updated = new Prescription(
+                prescriptionId,
+                patientId,
+                clinicianId,
+                appointmentId,
+                prescriptionDate,
+                medicationName,
+                dosage,
+                frequency,
+                durationDays,
+                quantity,
+                instruction,
+                pharmacyName,
+                status,
+                issueDate,
+                collectionDate
+        );
+
+        model.updatePrescription(updated);
+        view.showSuccessMessage("Prescription updated successfully!");
+        handleRefreshPrescriptions();
+    }
+
 
     private void handleGeneratePrescriptionDocument(String prescriptionId) {
         Prescription prescription = model.getPrescription(prescriptionId);

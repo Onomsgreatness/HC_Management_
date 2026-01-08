@@ -13,7 +13,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class ReferralManager {
+public class
+ReferralManager {
     private static ReferralManager instance;
 
     private final ArrayList<Referral> referrals;
