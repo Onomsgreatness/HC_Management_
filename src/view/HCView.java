@@ -46,6 +46,8 @@ public class HCView extends JFrame {
     private GenerateDocumentListener generatePrescriptionDocumentListener;
     private DeleteListener deletePrescriptionListener;
 
+    private EditReferralListener editReferralListener;
+
     private Runnable refreshReferralsListener;
     private Runnable refreshFacilitiesListener;
     private Runnable refreshStaffListener;
@@ -896,16 +898,16 @@ public class HCView extends JFrame {
 
         JPanel btns = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JButton add = new JButton("Add");
+        JButton edit = new JButton("Edit");
         JButton updateStatus = new JButton("Update Status");
         JButton genDoc = new JButton("Generate Document");
 
         add.addActionListener(e -> showAddReferralDialog());
+        edit.addActionListener(e -> showEditReferralDialog());
         updateStatus.addActionListener(e -> showUpdateReferralStatusDialog());
         genDoc.addActionListener(e -> generateSelectedReferralDoc());
 
-        btns.add(add);
-        btns.add(updateStatus);
-        btns.add(genDoc);
+        btns.add(add); btns.add(edit); btns.add(updateStatus); btns.add(genDoc);
 
         panel.add(btns, BorderLayout.SOUTH);
         return panel;
@@ -997,6 +999,70 @@ public class HCView extends JFrame {
         }
     }
 
+    private void showEditReferralDialog() {
+        if (editReferralListener == null) { showErrorMessage("Referral edit handler not set."); return; }
+
+        int row = referralsTable.getSelectedRow();
+        if (row < 0) { showErrorMessage("Select a referral row first."); return; }
+
+        String referralId = referralsTable.getValueAt(row, 0).toString();
+
+        JTextField patientId = new JTextField(String.valueOf(referralsTable.getValueAt(row, 1)));
+        JTextField refClinicianId = new JTextField(String.valueOf(referralsTable.getValueAt(row, 2)));
+        JTextField referredClinicianId = new JTextField(String.valueOf(referralsTable.getValueAt(row, 3)));
+        JTextField fromFacilityId = new JTextField(String.valueOf(referralsTable.getValueAt(row, 4)));
+        JTextField toFacilityId = new JTextField(String.valueOf(referralsTable.getValueAt(row, 5)));
+        JTextField referralDate = new JTextField(String.valueOf(referralsTable.getValueAt(row, 6)));
+        JTextField urgency = new JTextField(String.valueOf(referralsTable.getValueAt(row, 7)));
+        JTextField reason = new JTextField(String.valueOf(referralsTable.getValueAt(row, 8)));
+        JTextField summary = new JTextField(String.valueOf(referralsTable.getValueAt(row, 9)));
+        JTextField investigation = new JTextField(String.valueOf(referralsTable.getValueAt(row, 10)));
+        JTextField appointmentId = new JTextField(String.valueOf(referralsTable.getValueAt(row, 12)));
+        JTextField notes = new JTextField(String.valueOf(referralsTable.getValueAt(row, 13)));
+
+        JPanel form = formGrid(
+                "Referral ID", new JLabel(referralId),
+                "Patient ID", patientId,
+                "Referring Clinician ID", refClinicianId,
+                "Referred To Clinician ID", referredClinicianId,
+                "Referring Facility ID", fromFacilityId,
+                "Referred To Facility ID", toFacilityId,
+                "Referral Date (yyyy-MM-dd)", referralDate,
+                "Urgency Level", urgency,
+                "Referral Reason", reason,
+                "Clinical Summary", summary,
+                "Requested Investigation", investigation,
+                "Appointment ID", appointmentId,
+                "Notes", notes
+        );
+
+        int ok = JOptionPane.showConfirmDialog(this, form, "Edit Referral", JOptionPane.OK_CANCEL_OPTION);
+        if (ok != JOptionPane.OK_OPTION) return;
+
+        try {
+            Date d = parseDate(referralDate.getText().trim());
+
+            editReferralListener.onEditReferral(
+                    referralId,
+                    patientId.getText().trim(),
+                    refClinicianId.getText().trim(),
+                    referredClinicianId.getText().trim(),
+                    fromFacilityId.getText().trim(),
+                    toFacilityId.getText().trim(),
+                    d,
+                    urgency.getText().trim(),
+                    reason.getText().trim(),
+                    summary.getText().trim(),
+                    investigation.getText().trim(),
+                    appointmentId.getText().trim(),
+                    notes.getText().trim()
+            );
+        } catch (Exception ex) {
+            showErrorMessage("Invalid referral date. Use yyyy-MM-dd");
+        }
+    }
+
+
     private void showUpdateReferralStatusDialog() {
         if (updateReferralStatusListener == null) { showErrorMessage("UpdateReferralStatus handler not set."); return; }
         int row = referralsTable.getSelectedRow();
@@ -1020,13 +1086,6 @@ public class HCView extends JFrame {
         String id = referralsTable.getValueAt(row, 0).toString();
         generateReferralDocumentListener.onGenerateDocument(id);
     }
-
-
-
-
-
-
-
 
 
     // ========================= REQUIRED “IGNORE” METHODS)=========================
@@ -1102,6 +1161,7 @@ public class HCView extends JFrame {
     // extra setters the controller calls (kept for compilation)
     public void setRefreshReferralsListener(Runnable r) { this.refreshReferralsListener = r; }
     public void setAddReferralListener(ReferralListener l) { this.addReferralListener = l; }
+    public void setEditReferralListener(EditReferralListener l) { this.editReferralListener = l; }
     public void setUpdateReferralStatusListener(UpdateStatusListener l) { this.updateReferralStatusListener = l; }
     public void setGenerateReferralDocumentListener(GenerateDocumentListener l) { this.generateReferralDocumentListener = l; }
 

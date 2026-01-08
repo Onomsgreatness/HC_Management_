@@ -202,6 +202,20 @@ public class HCController {
             }
         });
 
+        view.setEditReferralListener(new EditReferralListener() {
+            public void onEditReferral(String referralId, String patientId, String referringClinicianId,
+                                       String referredToClinicianId, String referringFacilityId,
+                                       String referringToFacilityId, Date referralDate, String urgencyLevel,
+                                       String referralReason, String clinicalSummary,
+                                       String requestedInvestigation, String appointmentId, String notes) {
+
+                handleEditReferral(referralId, patientId, referringClinicianId, referredToClinicianId,
+                        referringFacilityId, referringToFacilityId, referralDate, urgencyLevel,
+                        referralReason, clinicalSummary, requestedInvestigation, appointmentId, notes);
+            }
+        });
+
+
         view.setUpdateReferralStatusListener(new UpdateStatusListener() {
             public void onUpdateStatus(String id, String status) {
                 handleUpdateReferralStatus(id, status);
@@ -521,6 +535,45 @@ public class HCController {
         view.showSuccessMessage("Referral added successfully!");
         handleRefreshReferrals();
     }
+
+    private void handleEditReferral(String referralId, String patientId, String referringClinicianId,
+                                    String referredToClinicianId, String referringFacilityId,
+                                    String referringToFacilityId, Date referralDate, String urgencyLevel,
+                                    String referralReason, String clinicalSummary,
+                                    String requestedInvestigation, String appointmentId, String notes) {
+
+        ReferralManager rm = model.getReferralManager();
+        Referral existing = rm.getReferralById(referralId);
+
+        if (existing == null) {
+            view.showErrorMessage("Referral not found: " + referralId);
+            return;
+        }
+
+        Referral updated = new Referral(
+                referralId,
+                patientId,
+                referringClinicianId,
+                referredToClinicianId,
+                referringFacilityId,
+                referringToFacilityId,
+                referralDate,
+                urgencyLevel,
+                referralReason,
+                clinicalSummary,
+                requestedInvestigation,
+                existing.getStatus(),          // keep current status
+                appointmentId,
+                notes,
+                existing.getCreatedDate(),     // keep created date
+                new Date()                     // update lastUpdated
+        );
+
+        rm.updateReferral(updated); // YOU must implement this (next step)
+        view.showSuccessMessage("Referral updated successfully!");
+        handleRefreshReferrals();
+    }
+
 
     private void handleUpdateReferralStatus(String referralId, String status) {
         ReferralManager rm = model.getReferralManager();
